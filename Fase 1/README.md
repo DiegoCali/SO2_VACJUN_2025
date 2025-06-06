@@ -36,6 +36,17 @@ Modificacion de línea 9:
 >[!note]
 > Se debe agregar el **SOLO** archivo modificado en la carpeta `kmods` para que se compile al momento de compilar el kernel. Si hay otros archivos que se modifican, se debe agregar en el mismo formato, indicando la dirección del archivo y la línea que se modifica.
 
+# Syscalls enlaces:
+Los enlaces de las llamadas ocurren en la carpeta:
+`arch/x86/entry/syscalls/syscall_64.tbl`
+
+En ese archivo se deben agregar las nuevas llamadas al sistema, de la siguiente manera:
+| linea | no. llamada | abi    | nombre | entry point |
+|-------|-------------|--------|--------|-------------|
+| 378   | 454         | common | get_time_sec | sys_get_time_sec |
+| ...   | ...         | ... | ... | ... |
+| 381   | 457         | common | panic_signal | sys_panic_signal |
+
 # Manejo de ramas:
 Usaremos el flujo de trabajo parecido a Git Flow, con las siguientes ramas:
 - `develop`: rama proveniente del `main` donde se desarrollará el proyecto.
