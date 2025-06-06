@@ -36,4 +36,31 @@ Modificacion de línea 9:
 >[!note]
 > Se debe agregar el **SOLO** archivo modificado en la carpeta `kmods` para que se compile al momento de compilar el kernel. Si hay otros archivos que se modifican, se debe agregar en el mismo formato, indicando la dirección del archivo y la línea que se modifica.
 
+# Manejo de ramas:
+Usaremos el flujo de trabajo parecido a Git Flow, con las siguientes ramas:
+- `develop`: rama proveniente del `main` donde se desarrollará el proyecto.
+- de la rama `develop` se crearán ramas para cada tarea asignada, por ejemplo:
+  - `josue-kernel-mods`
+  - `alvaro-syscalls`
+  - `diego-syscalls`
+- Por ultimo, al finalizar cada tarea, se hará un merge a la rama `develop` y luego se hará un merge a la rama `main`.
 
+# Diagrama de flujo de trabajo:
+```mermaid
+gitGraph
+   commit id: "Inicio del proyecto"
+   checkout main
+   commit id: "Versión inicial estable"
+   branch develop
+   checkout develop
+   commit id: "Inicio del desarrollo"
+
+   branch diego-syscalls
+   checkout diego-syscalls
+   commit id: "Trabajo de Diego en syscalls"
+   checkout develop
+   merge diego-syscalls id: "Merge diego-syscalls a develop"
+
+   checkout main
+   merge develop id: "Merge develop a main"
+```
