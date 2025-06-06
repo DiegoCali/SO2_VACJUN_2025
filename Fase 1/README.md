@@ -34,6 +34,6 @@ Modificacion de línea 9:
 #define UTS_SYSNAME "usac-kernel-1128-7639-3856"
 ```
 >[!note]
-> Se debe agregar el archivo en la carpeta `kmods` para que se compile al momento de compilar el kernel. Si hay otros archivos que se modifican, se debe agregar en el mismo formato, indicando la dirección del archivo y la línea que se modifica.
+> Se debe agregar el **SOLO** archivo modificado en la carpeta `kmods` para que se compile al momento de compilar el kernel. Si hay otros archivos que se modifican, se debe agregar en el mismo formato, indicando la dirección del archivo y la línea que se modifica.
 
 
