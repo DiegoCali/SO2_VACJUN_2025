@@ -2,9 +2,9 @@
 # <number> <abi> <name> <entry point>
 
 # Hasta la línea 378 empezar a escribir lo siguiente...
-# 454 (Descomentar Alvaro)
-# 455 (Descomentar Alvaro)
-# 456 (Descomentar Alvaro)
+454 common  get_time_sec    sys_get_time_sec
+455 common 	get_logs		sys_get_logs
+# 456 queda disponible (no fue necesaria)
 457    common    panic_signal    sys_panic_signal
 
 # ...
