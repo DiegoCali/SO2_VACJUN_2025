@@ -4,6 +4,10 @@
 - Comprender como funcionan las llamadas al sistema de Linux.
 
 # Configuración del entorno:
+Se estará utilizando la siguiente version del kernel de Linux: `6.6.44` en una maquina virtual con mint 21.1, con las siguientes características:
+- 4 GB de RAM.
+- 4 núcleos de CPU.
+- 20 GB de disco duro.
 
 # Instrucciones:
 Vamos a dividir el proyecto en 3 partes y asignar las tareas de la siguiente forma:
