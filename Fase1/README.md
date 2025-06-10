@@ -68,3 +68,6 @@ Para solucionar este error, se debe aumentar la memoria RAM de la máquina virtu
 ## Error por configuración incorrecta:
 ![error_configuracion](/Fase1/imgs/config_error.jpeg)
 Si se produce un error de configuración, se debe revisar el archivo `.config` y asegurarse de que todas las opciones necesarias estén habilitadas. También se puede intentar usar una configuración predefinida como `make defconfig` o `make localmodconfig`.
+
+# como se ve una compilación exitosa:
+![compilacion_exitosa](/Fase1/imgs/successful_build.jpeg)
