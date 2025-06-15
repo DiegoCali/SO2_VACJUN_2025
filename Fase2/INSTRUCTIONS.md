@@ -32,7 +32,8 @@ La función `encrypt_data` lee el archivo de entrada, lo divide en partes iguale
 
 // Un ejemplo de uso...
 ```
-
+>[!IMPORTANT]
+> Las llamadas al sistema tendrán que ser realizadas en un archivo propio llamado `syscalls_usac.h`.
 ### Encriptación y des-encriptación figura:
 ```mermaid
 flowchart TD
