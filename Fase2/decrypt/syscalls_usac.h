@@ -1,10 +1,3 @@
-## en el arch/x86/entry/syscalls/syscall_64.tbl
-```plaintext
-549 common xor_decrypt sys_xor_decrypt
-```
-
-## en el include/linux/syscalls_usac.h
-```c
 #ifndef _SYSCALLS_USAC_H
 #define _SYSCALLS_USAC_H
 
@@ -18,11 +11,10 @@
  *   thread_count     : número de hilos a usar
  *   key_file_route   : ruta del fichero que contiene la clave
  */
+
 asmlinkage long sys_xor_decrypt(const char __user *file_route_in,
                                 const char __user *file_route_out,
                                 int                 thread_count,
                                 const char __user *key_file_route);
 
 #endif /* _SYSCALLS_USAC_H */
-
-```
