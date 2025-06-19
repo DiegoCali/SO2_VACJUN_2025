@@ -53,7 +53,7 @@ Y para probar las llamadas al sistema utilizaremos los siguientes comandos:
 ![error2](/Fase2/imgs/error2.png)
 > [!NOTE]
 > Este error se produce cuando el compilador no puede encontrar la definición de una función o variable. Asegúrate de que todas las funciones y variables estén definidas y que los archivos de cabecera estén incluidos correctamente.
-## Error de [???]:
+## Error de Mala configuración del kernel:
 ![error3](/Fase2/imgs/error3.png)
 > [!NOTE]
-> Este error se produce cuando ...
+> Este error se produce cuando o se incluyo la compilación del .h en el makefile del kernel
