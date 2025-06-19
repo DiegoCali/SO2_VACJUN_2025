@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define __NR_decrypt 999
+#define __NR_decrypt 549
 
 long decrypt(const char *input, char *output, int thread_count, const char *key) {
-    // return syscall(__NR_decrypt, input, output, thread_count, key);
-    return printf("Decrypting file %s to %s with %d threads and key %s\n", input, output, thread_count, key);
+    return syscall(__NR_decrypt, input, output, thread_count, key);
 }
 
 int main(int argc, char *argv[]) {
