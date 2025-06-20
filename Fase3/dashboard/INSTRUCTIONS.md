@@ -28,3 +28,6 @@ Aquí trabajaremos con la gestión de cuarentena y el monitoreo del sistema. Se 
 # Funcionalidades
 ...
 ```
+
+> [!NOTE]
+> Utilizar postman para probar las rutas del dashboard y el daemon. Esto te permitirá verificar que las rutas están funcionando correctamente y que los datos se envían y reciben como se espera sin la necesidad de tener todo el sistema implementado.

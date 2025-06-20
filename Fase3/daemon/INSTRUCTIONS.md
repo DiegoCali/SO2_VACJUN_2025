@@ -39,3 +39,6 @@ Para el envío de datos al dashboard, se utilizará el protocolo HTTP. El daemon
 # Rutas
 - `/api/mem_stats`: Enviar estadísticas de memoria del sistema.
 ```
+
+>[!NOTE]
+> Utilizar Postman para probar las rutas del daemon. Esto te permitirá verificar que las rutas están funcionando correctamente y que los datos se envían y reciben como se espera sin la necesidad de tener todo el sistema implementado.
