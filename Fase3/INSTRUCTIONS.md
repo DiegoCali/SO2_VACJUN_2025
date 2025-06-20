@@ -10,9 +10,9 @@ El objetivo es desarrollar un sistema de antivirus a nivel de kernel dividido en
 ## Nombre del anrivirus: `USAC-AV`
 
 ## División del trabajo:
-- Alvaro: Implementación de las [llamadas al sistema](#llamadas-al-sistema).
--  Diego: Implementación del [daemon del antivirus](#daemon-del-antivirus).
--  Josué: Implementación del [dashboard web](#dashboard-web).
+- Alvaro: Implementación de las [llamadas al sistema](#llamadas-al-sistema), deberá trabajar en la carpeta `/syscalls`.
+-  Diego: Implementación del [daemon del antivirus](#daemon-del-antivirus) deberá trabajar en la carpeta `/daemon`.
+-  Josué: Implementación del [dashboard web](#dashboard-web) deberá trabajar en la carpeta `/dashboard`.
 
 ## Llamadas al sistema:
 - **Monitoreo de procesos en tiempo real**: detecta procesos con consumo anómalo de memoria, fallos de página elevados, uso de swap excesivo o características típicas de malware.
@@ -51,7 +51,7 @@ Debe contener información relevante como:
             "pid": 1234,
             "memory_percent": 12.34,
         },
-        ...
+        //...
     ],
 }
 ```
