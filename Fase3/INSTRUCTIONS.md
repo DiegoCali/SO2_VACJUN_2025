@@ -14,7 +14,7 @@ El objetivo es desarrollar un sistema de antivirus a nivel de kernel dividido en
 -  Diego: Implementación del [daemon del antivirus](#daemon-del-antivirus).
 -  Josué: Implementación del [dashboard web](#dashboard-web).
 
-## Llamas al sistema:
+## Llamadas al sistema:
 - **Monitoreo de procesos en tiempo real**: detecta procesos con consumo anómalo de memoria, fallos de página elevados, uso de swap excesivo o características típicas de malware.
 - **Escaneo de archivos con firmas**: análisis de ejecutables o documentos, calculando hashes y comparándolos con una base de datos de firmas conocidas (un archivo `signatures.db`).
 - **Gestión de cuarentena**: los archivos detectados como maliciosos se aíslan en un entorno seguro, en el dashboard se pueden ver los archivos en cuarentena y se pueden eliminar o restaurar.
@@ -57,10 +57,30 @@ Debe contener información relevante como:
 ```
 Ademas de que habran otras peticiones que se pueden hacer al daemon...
 
-## Dashboard Web (Frontend):
+## Dashboard Web:
 El dashboard web debe mostrar la información del antivirus de manera visual y amigable en tiempo real. Métricas sugeridas:
 - **Uso de memoria**: Grafico de Pie, memoria usada, libre y cache con el objetivo de mostrar el estado general de la asignación de memoria.
 - **Evolución del uso de memoria en el tiempo**: Gráfico de líneas que muestre el uso de memoria física vs. swap a lo largo del tiempo.
 - **Tasa de fallos de página**: Gráfico de barras que muestre la tasa de fallos de página menores y mayores por proceso.
 - **Estado de páginas de memoria**: Gráfico de Pie que muestre la proporción de páginas activas e inactivas.
 - **Procesos que consumen más memoria**: Tabla o grafico de barras que muestre los procesos con mayor consumo de memoria, ordenados por porcentaje de uso.
+
+# Diagrama de flujo de trabajo:
+```mermaid
+gitGraph
+   commit id: "Inicio del proyecto"
+   checkout main
+   commit id: "Versión inicial estable"
+   branch develop3
+   checkout develop3
+   commit id: "Inicio del desarrollo"
+
+   branch diego-daemon
+   checkout diego-daemon
+   commit id: "Trabajo de Diego en syscalls"
+   checkout develop3
+   merge diego-daemon id: "Merge diego-daemon a develop3"
+
+   checkout main
+   merge develop3 id: "Merge develop3 a main"
+```
