@@ -177,7 +177,7 @@ void* start_web_server(void* arg) {
                 }   
 
                 // Here you would typically gather page information from the system
-                int status = 0;
+                int status = 0; // Assume 0 means success, -1 means failure, 1 means infected
         
                 snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"hash\": J8JLK8P86, \"file_path\": \"%s\"\n}", status, file_path);                
                 free((void*)file_path); // Free the allocated memory for pid
@@ -193,11 +193,61 @@ void* start_web_server(void* arg) {
                 }
 
                 // Here you would typically gather page information from the system
-                int status = 0;
+                int status = 0; // Assume 0 means success, -1 means failure
 
                 snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"file_path\": \"%s\"\n}", status, file_path);
                 free((void*)file_path); // Free the allocated memory for pid
                 http_response(response, 200, "application/json", json_response);
+            } else if (strcmp(path, "/api/restore_file") == 0) {
+                const char* filename = extract_body_value(body, "filename");
+                if(!filename) {
+                    snprintf(json_response, BUFFER_SIZE, "{\"error: \"Key 'filename' not found in POST data\"}");
+                    http_response(response, 400, "application/json", json_response);
+                    write(new_socker, response, strlen(response));
+                    close(new_socker);
+                    continue;
+                }
+
+                // Here you would typically gather page information from the system
+                int status = 0; // Assume 0 means success, -1 means failure
+
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"filename\": \"%s\"\n}", status, filename);
+                free((void*)filename); // Free the allocated memory for filename
+                http_response(response, 200, "application/json", json_response);
+            } else if (strcmp(path, "/api/delete_file") == 0) {
+                const char* filename = extract_body_value(body, "filename");
+                if(!filename) {
+                    snprintf(json_response, BUFFER_SIZE, "{\"error: \"Key 'filename' not found in POST data\"}");
+                    http_response(response, 400, "application/json", json_response);
+                    write(new_socker, response, strlen(response));
+                    close(new_socker);
+                    continue;
+                }
+
+                // Here you would typically gather page information from the system
+                int status = 0; // Assume 0 means success, -1 means failure
+
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"filename\": \"%s\"\n}", status, filename);
+                free((void*)filename); // Free the allocated memory for filename
+                http_response(response, 200, "application/json", json_response);
+            } else if (strcmp(path, "/api/add_signature") == 0) {
+                const char* signature = extract_body_value(body, "signature");
+                if (!signature) {
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'signature' not found in POST data\"}");
+                    http_response(response, 400, "application/json", json_response);
+                    write(new_socker, response, strlen(response));
+                    close(new_socker);
+                    continue;
+                }
+
+                // Here you would typically add the signature to the antivirus database
+                int status = 0; // Assume 0 means success, -1 means failure
+
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"signature\": \"%s\"\n}", status, signature);
+                free((void*)signature); // Free the allocated memory for signature
+                http_response(response, 200, "application/json", json_response);
+            } else {
+                handler_not_found(response);
             }
         } else {
             handler_not_found(response);
