@@ -1,6 +1,10 @@
 # Daemon
 
 ## Pasos para ejecutar el daemon:
+Instalar las dependencias necesarias:
+```bash
+sudo apt install libjson-c-dev 
+```
 ejecutar el siguiente comando en la terminal:
 ```bash
 make
