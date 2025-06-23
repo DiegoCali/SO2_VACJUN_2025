@@ -145,29 +145,58 @@ void* start_web_server(void* arg) {
 
                 const char* body = "{\"active_pages\": 1000, \"inactive_pages\": 500}";
                 http_response(response, 200, "application/json", body);
-            } else if (strcmp(path, "/api/page_faults") == 0){
-                
-                // Here you would typically gather quarantine files from the system
-
-                const char* body = "{\"page_faults\": 12345, \"major_page_faults\": 6789}";
-                http_response(response, 200, "application/json", body);
             } else {
                 handler_not_found(response);
             }
         } else if (strcmp(method, "POST") == 0){
             const char* body = extract_body(buffer);    
-            printf("Received POST body: %s\n", body ? body : "NULL");                    
-            if (strcmp(path, "/api/test") == 0) {
-                const char* value = extract_body_value(body, "test_key");                
-                if (!value) {        
-                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'test_key' not found in POST data\"}");                    
+            // printf("Received POST body: %s\n", body ? body : "NULL");                    
+            if (strcmp(path, "/api/page_faults") == 0) {
+                const char* pid = extract_body_value(body, "pid");                
+                if (!pid) {        
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'pid' not found in POST data\"}");                    
                     http_response(response, 400, "application/json", json_response);
                     write(new_socker, response, strlen(response));
                     close(new_socker);
                     continue;
-                }                
-                snprintf(json_response, BUFFER_SIZE, "{\"message\": \"Hello, %s\"}", value);
-                free((void*)value); // Free the allocated memory for value
+                }      
+                
+                // Here you would typically gather page information from the system
+                
+                snprintf(json_response, BUFFER_SIZE, "{\"minor_faults\": 1000, \"major_faults\": 20, \"pid\": %s\n}", pid);
+                free((void*)pid); // Free the allocated memory for pid
+                http_response(response, 200, "application/json", json_response);
+            } else if (strcmp(path, "/api/scan_file") == 0) {
+                const char* file_path = extract_body_value(body, "file_path");                
+                if (!file_path){
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'file_path' not found in POST data\"}");
+                    http_response(response, 400, "application/json", json_response);
+                    write(new_socker, response, strlen(response));
+                    close(new_socker);
+                    continue;
+                }   
+
+                // Here you would typically gather page information from the system
+                int status = 0;
+        
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"hash\": J8JLK8P86, \"file_path\": \"%s\"\n}", status, file_path);                
+                free((void*)file_path); // Free the allocated memory for pid
+                http_response(response, 200, "application/json", json_response);
+            } else if (strcmp(path, "/api/quarantine_file") == 0) {
+                const char* file_path = extract_body_value(body, "file_path");
+                if (!file_path){
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'file_path' not found in POST data\"}");
+                    http_response(response, 400, "application/json", json_response);
+                    write(new_socker, response, strlen(response));
+                    close(new_socker);
+                    continue;
+                }
+
+                // Here you would typically gather page information from the system
+                int status = 0;
+
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"file_path\": \"%s\"\n}", status, file_path);
+                free((void*)file_path); // Free the allocated memory for pid
                 http_response(response, 200, "application/json", json_response);
             }
         } else {
