@@ -231,20 +231,20 @@ void* start_web_server(void* arg) {
                 free((void*)filename); // Free the allocated memory for filename
                 http_response(response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/add_signature") == 0) {
-                const char* signature = extract_body_value(body, "signature");
-                if (!signature) {
-                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'signature' not found in POST data\"}");
+                const char* file_path = extract_body_value(body, "file_path");
+                if (!file_path) {
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'file_path' not found in POST data\"}");
                     http_response(response, 400, "application/json", json_response);
                     write(new_socker, response, strlen(response));
                     close(new_socker);
                     continue;
                 }
 
-                // Here you would typically add the signature to the antivirus database
+                // Here you would typically add the file_path to the antivirus database
                 int status = 0; // Assume 0 means success, -1 means failure
 
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"signature\": \"%s\"\n}", status, signature);
-                free((void*)signature); // Free the allocated memory for signature
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"file_path\": \"%s\"\n}", status, file_path);
+                free((void*)file_path); // Free the allocated memory for file_path
                 http_response(response, 200, "application/json", json_response);
             } else {
                 handler_not_found(response);
