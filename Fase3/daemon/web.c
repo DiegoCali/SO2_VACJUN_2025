@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <json-c/json.h>
 #include "web.h"
 
 #define PORT 8080
@@ -24,41 +25,24 @@ const char* extract_body(const char* request) {
     * @key: The key to search for in the body.
 */
 char* extract_body_value(const char* body, const char* key) {
-    const char* start = strstr(body, key);
-    if (!start) return NULL;
-
-    start += strlen(key);      
-    while (*start == ' ' || *start == ':' || *start == '\t') start++; 
-
-    // STRING
-    if (*start == '"') {
-        start++; // ommit the opening quote
-        const char* end = strchr(start, '"');
-        if (!end) return NULL;
-
-        size_t length = end - start;
-        char* value = malloc(length + 1);
-        if (value) {
-            strncpy(value, start, length);
-            value[length] = '\0';
-            return value;
-        }
+    struct json_object *parsed_json;
+    struct json_object *value;
+    parsed_json = json_tokener_parse(body);
+    if (parsed_json == NULL) {
+        fprintf(stderr, "Failed to parse JSON body\n");
     }
-    // NUMBER, true, false, null, etc.
-    else {
-        const char* end = start;
-        while (*end && *end != ',' && *end != '}' && *end != ' ' && *end != '\n') end++;
-
-        size_t length = end - start;
-        char* value = malloc(length + 1);
-        if (value) {
-            strncpy(value, start, length);
-            value[length] = '\0';
-            return value;
+    if (json_object_object_get_ex(parsed_json, key, &value)) {
+        const char* value_str = json_object_get_string(value);
+        char* result = malloc(strlen(value_str) + 1);
+        if (result) {
+            strcpy(result, value_str);
         }
+        json_object_put(parsed_json); // Free the JSON object
+        return result; // Return the value as a dynamically allocated string
+    } else {
+        json_object_put(parsed_json); // Free the JSON object
+        return NULL; // Key not found
     }
-
-    return NULL; 
 }
 
 /*
@@ -98,7 +82,7 @@ void* start_web_server(void* arg) {
     int addrlen = sizeof(address);
     char buffer[BUFFER_SIZE];
     char response[BUFFER_SIZE];
-    //char json_response[BUFFER_SIZE];
+    char json_response[BUFFER_SIZE];
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -175,15 +159,16 @@ void* start_web_server(void* arg) {
             printf("Received POST body: %s\n", body ? body : "NULL");                    
             if (strcmp(path, "/api/test") == 0) {
                 const char* value = extract_body_value(body, "test_key");                
-                if (!value) {                                
-                    http_response(response, 400, "application/json", "{\"error\": \"Invalid request body\"}");
+                if (!value) {        
+                    snprintf(json_response, BUFFER_SIZE, "{\"error\": \"Key 'test_key' not found in POST data\"}");                    
+                    http_response(response, 400, "application/json", json_response);
                     write(new_socker, response, strlen(response));
                     close(new_socker);
                     continue;
-                }
-                printf("Received POST data: %s\n", value);
+                }                
+                snprintf(json_response, BUFFER_SIZE, "{\"message\": \"Hello, %s\"}", value);
                 free((void*)value); // Free the allocated memory for value
-                http_response(response, 200, "text/plain", "POST request received successfully");
+                http_response(response, 200, "application/json", json_response);
             }
         } else {
             handler_not_found(response);

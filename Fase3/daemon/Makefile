@@ -4,7 +4,7 @@ TARGET = dist/main
 
 # Object files will now live in build/
 OBJ_DIR = build
-SRC = main.c daemon.c web.c test.c
+SRC = main.c daemon.c web.c test.c -ljson-c
 OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 
 all: $(TARGET)
