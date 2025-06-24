@@ -163,7 +163,7 @@ Retorna:
 ```
 
 
-#### Errores comunes (código 400)
+### Errores comunes (código 400)
 - Si falta un campo requerido en el body, retorna:
 ```
 {
@@ -182,3 +182,6 @@ Retorna:
   "error": "Method Not Allowed"
 }
 ```
+
+>[!NOTE]
+> En la carpeta `testing` se encuentra un archivo json con la configuración de las pruebas a la api en postman.
