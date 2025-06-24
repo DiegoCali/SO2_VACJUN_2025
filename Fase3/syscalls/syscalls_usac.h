@@ -16,13 +16,20 @@ struct page_faults {
     unsigned long major_faults;
 };
 
+struct mem_info {
+    unsigned long total_memory;
+    unsigned long free_memory;
+    unsigned long used_memory;
+    unsigned long cached_memory;
+};
+
 #include <linux/syscalls.h>
 
 /* Estructura de syscalls agregadas desde syscall_64.tbl */
 asmlinkage long sys_scan_processes(struct proc __user *user_buf, size_t max_count);
 asmlinkage long sys_get_page_faults(pid_t pid, struct page_faults __user *user_faults);
 #asmlinkage long sys_antivirus_stats(void);
-#asmlinkage long sys_get_memory_usage(pid_t pid);
+asmlinkage long sys_get_memory_usage(struct mem_info __user *user_mem);
 #asmlinkage long sys_get_pages(pid_t pid);
 #asmlinkage long sys_scan_file(const char __user *filepath);
 #asmlinkage long sys_quarantine_file(const char __user *filepath);

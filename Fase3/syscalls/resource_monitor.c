@@ -101,7 +101,23 @@ SYSCALL_DEFINE2(get_page_faults, pid_t, pid, struct page_faults __user *, user_f
 // ----------- SYSCALL: sys_get_memory_usage -----------
 // Devuelve info de memoria (total, libre, usada, caché)
 
+SYSCALL_DEFINE1(get_memory_usage, struct mem_info __user *, user_mem)
+{
+    struct sysinfo si;
+    struct mem_info info;
 
+    si_meminfo(&si);
+
+    info.total_memory = si.totalram << (PAGE_SHIFT - 10);   // En KB
+    info.free_memory  = si.freeram << (PAGE_SHIFT - 10);    // En KB
+    info.cached_memory = si.bufferram << (PAGE_SHIFT - 10); // En KB
+    info.used_memory  = info.total_memory - info.free_memory; // En KB
+
+    if (copy_to_user(user_mem, &info, sizeof(struct mem_info)))
+        return -EFAULT;
+
+    return 0;
+}
 
 
 // ----------- SYSCALL: sys_get_pages -----------

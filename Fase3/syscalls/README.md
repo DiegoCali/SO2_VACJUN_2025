@@ -1,4 +1,4 @@
-
+## sys_scan_processes
 para usar el syscall `sys_scan_processes` con num. 550
 ``` C
 #include <stdio.h>
@@ -26,7 +26,7 @@ int main() {
 }
 
 ```
-
+## sys_get_page_faults
 para usar el syscall `sys_get_page_faults` con num. 551
 ``` C
 #include <stdio.h>
@@ -51,6 +51,31 @@ int main(int argc, char *argv[]) {
     }
 
     printf("PID: %d\nMinor Faults: %lu\nMajor Faults: %lu\n", pid, pf.minor_faults, pf.major_faults);
+    return 0;
+}
+```
+### queda pendiente la syscall 552
+## sys_get_memory_usage
+para usar el syscall `sys_get_memory_usage` con num. 553
+``` C
+#include <stdio.h>
+#include <sys/syscall.h>
+#include <stdlib.h>
+#include "syscalls_usac.h"
+
+int main() {
+    struct mem_info info;
+
+    long ret = syscall(553, &info); // 553 = número de syscall (verifica el tuyo)
+    if (ret < 0) {
+        perror("sys_get_memory_usage");
+        return 1;
+    }
+
+    printf("Memoria total: %lu KB\n", info.total_memory);
+    printf("Memoria libre: %lu KB\n", info.free_memory);
+    printf("Memoria usada: %lu KB\n", info.used_memory);
+    printf("Memoria en caché: %lu KB\n", info.cached_memory);
     return 0;
 }
 ```
