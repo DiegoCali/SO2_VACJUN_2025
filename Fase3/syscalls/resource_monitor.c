@@ -1,0 +1,94 @@
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
+#include <linux/uaccess.h>
+#include <linux/slab.h>
+#include <linux/string.h>
+#include <linux/sched.h>
+#include <linux/pid.h>
+#include <linux/mm.h>
+#include <linux/sysinfo.h>
+#include <linux/init.h>
+#include <linux/fs.h>
+#include <linux/vmstat.h>
+#include "syscalls_usac.h"
+
+// ----------- SYSCALL: sys_scan_processes -----------
+// Devuelve la lista de todos los procesos con: name, pid, mem_percentage
+SYSCALL_DEFINE2(scan_processes, struct proc __user *, user_buf, size_t, max_count)
+{
+    struct task_struct *task;
+    struct proc *kbuf; #ya tenemos definida la estructura proc en syscalls_usac.h
+    int proc_count = 0, i = 0;
+    struct sysinfo si;
+    unsigned long total_mem;
+
+    // 1. Contar procesos actuales
+    rcu_read_lock();
+    for_each_process(task)
+        proc_count++;
+    rcu_read_unlock();
+
+    // 2. Si solo quieren saber cuántos procesos hay
+    if (!user_buf || max_count == 0)
+        return proc_count;
+
+    // 3. Reservar buffer temporal en kernel
+    int to_copy = (proc_count < max_count) ? proc_count : max_count;
+    kbuf = kmalloc_array(to_copy, sizeof(struct proc), GFP_KERNEL);
+    if (!kbuf)
+        return -ENOMEM;
+
+    // 4. Leer memoria total del sistema
+    si_meminfo(&si);
+    total_mem = si.totalram << (PAGE_SHIFT - 10);
+
+    // 5. Llenar buffer con los procesos
+    i = 0;
+    rcu_read_lock();
+    for_each_process(task) {
+        if (i >= to_copy)
+            break;
+        strncpy(kbuf[i].name, task->comm, TASK_COMM_LEN);
+        kbuf[i].name[TASK_COMM_LEN - 1] = '\0';
+        kbuf[i].pid = task->pid;
+        if (task->mm) {
+            unsigned long rss_kb = get_mm_rss(task->mm) * (PAGE_SIZE / 1024);
+            kbuf[i].mem_percentage = total_mem ? (rss_kb * 100) / total_mem : 0;
+        } else {
+            kbuf[i].mem_percentage = 0;
+        }
+        i++;
+    }
+    rcu_read_unlock();
+
+    // 6. Copiar a user-space
+    if (copy_to_user(user_buf, kbuf, to_copy * sizeof(struct proc))) {
+        kfree(kbuf);
+        return -EFAULT;
+    }
+    kfree(kbuf);
+
+    // 7. Siempre devolver el número total de procesos, no solo los copiados
+    return proc_count;
+}
+
+
+// ----------- SYSCALL: sys_get_page_faults -----------
+// Devuelve los fallos de página menores y mayores para el proceso con el pid dado
+
+
+
+
+// ----------- SYSCALL: sys_antivirus_stats -----------
+// Simulación: Estadísticas dummy de ejemplo (deberías conectar esto a tus contadores reales)
+
+
+
+// ----------- SYSCALL: sys_get_memory_usage -----------
+// Devuelve info de memoria (total, libre, usada, caché)
+
+
+
+
+// ----------- SYSCALL: sys_get_pages -----------
+// Devuelve el número de páginas activas e inactivas
