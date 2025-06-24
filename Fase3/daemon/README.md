@@ -15,67 +15,170 @@ Luego en la carpeta `/dist` ejecutar el siguiente comando:
 ```
 
 ## API:
+
 ### `GET /api/mem_stats`
 Retorna:
 ```
 {
-  "total": 8192,
-  "used": 4096,
-  "free": 2048,
-  "cached": 1024,
-  "swapped": 512
+  "total": <int>,
+  "used": <int>,
+  "free": <int>,
+  "cached": <int>,
+  "swapped": <int>
 }
 ```
-
 
 ### `GET /api/processes`
 Retorna:
 ```
 {
   "processes": [
-    {"pid": 1, "name": "init", "mem_percent": 0.5},
-    {"pid": 2, "name": "kthreadd", "mem_percent": 0.1}
+    {"pid": <int>, "name": "<name>", "mem_percent": <float>},
+    {"pid": <int>, "name": "<name>", "mem_percent": <float>}
   ]
 }
 ```
-
 
 ### `GET /api/antivirus_stats`
 Retorna:
 ```
 {
-  "processes_monitored": 100,
-  "files_scanned": 5,
-  "quarantined_files": 2
+  "processes_monitored": <int>,
+  "files_scanned": <int>,
+  "quarantined_files": <int>
 }
 ```
-
 
 ### `GET /api/quarantine_files`
 Retorna:
 ```
 {
   "files": [
-    {"name": "malware.exe"},
-    {"name": "virus.txt"}
+    {"name": "<filename>"},
+    {"name": "<filename>"}
   ]
 }
 ```
-
 
 ### `GET /api/pages`
 Retorna:
 ```
 {
-  "active_pages": 1000,
-  "inactive_pages": 500
+  "active_pages": <int>,
+  "inactive_pages": <int>
 }
 ```
-### `GET /api/page_faults`
+
+
+### `POST /api/page_faults`
+Body:
+```
+{
+  "pid": <int>
+}
+```
 Retorna:
 ```
 {
-  "page_faults": 12345,
-  "major_page_faults": 6789
+  "minor_faults": <int>,
+  "major_faults": <int>,
+  "pid": <pid>
+}
+```
+
+### `POST /api/scan_file`
+Body:
+```
+{
+  "file_path": "<ruta>"
+}
+```
+Retorna:
+```
+{
+  "status": <int>,
+  "hash": "<hash>",
+  "file_path": "<ruta>"
+}
+```
+
+### `POST /api/quarantine_file`
+Body:
+```
+{
+  "file_path": "<ruta>"
+}
+```
+Retorna:
+```
+{
+  "status": <int>,
+  "file_path": "<ruta>"
+}
+```
+
+### `POST /api/restore_file`
+Body:
+```
+{
+  "filename": "<name>"
+}
+```
+Retorna:
+```
+{
+  "status": <int>,
+  "filename": "<name>"
+}
+```
+
+### `POST /api/delete_file`
+Body:
+```
+{
+  "filename": "<name>"
+}
+```
+Retorna:
+```
+{
+  "status": <int>,
+  "filename": "<name>"
+}
+```
+
+### `POST /api/add_signature`
+Body:
+```
+{
+  "file_path": "<ruta>"
+}
+```
+Retorna:
+```
+{
+  "status": <int>,
+  "file_path": "<ruta>"
+}
+```
+
+
+#### Errores comunes (código 400)
+- Si falta un campo requerido en el body, retorna:
+```
+{
+  "error": "Key '<campo>' not found in POST data"
+}
+```
+- Si el endpoint no existe, retorna:
+```
+{
+  "error": "Not Found"
+}
+```
+- Si el método HTTP no está permitido, retorna:
+```
+{
+  "error": "Method Not Allowed"
 }
 ```
