@@ -1,16 +1,9 @@
-#include <linux/kernel.h>
-#include <linux/syscalls.h>
-#include <linux/uaccess.h>
-#include <linux/slab.h>
-#include <linux/string.h>
-#include <linux/sched.h>
-#include <linux/pid.h>
-#include <linux/mm.h>
-#include <linux/sysinfo.h>
-#include <linux/init.h>
-#include <linux/fs.h>
-#include <linux/vmstat.h>
 #include "syscalls_usac.h"
+#include <linux/slab.h>
+#include <linux/sched.h>
+#include <linux/sysinfo.h>
+#include <linux/uaccess.h>
+#include <linux/rcupdate.h>
 
 // ----------- SYSCALL: sys_scan_processes -----------
 // Devuelve la lista de todos los procesos con: name, pid, mem_percentage
@@ -76,8 +69,29 @@ SYSCALL_DEFINE2(scan_processes, struct proc __user *, user_buf, size_t, max_coun
 // ----------- SYSCALL: sys_get_page_faults -----------
 // Devuelve los fallos de página menores y mayores para el proceso con el pid dado
 
+SYSCALL_DEFINE2(get_page_faults, pid_t, pid, struct page_faults __user *, user_faults)
+{
+    struct task_struct *task;
+    struct page_faults pf = {0};
 
+    // Encontrar el proceso con el PID dado
+    rcu_read_lock();
+    task = find_task_by_vpid(pid);
+    if (!task) {
+        rcu_read_unlock();
+        return -ESRCH; // No existe ese proceso
+    }
 
+    pf.minor_faults = task->min_flt;
+    pf.major_faults = task->maj_flt;
+    rcu_read_unlock();
+
+    // Copiar la información a user-space
+    if (copy_to_user(user_faults, &pf, sizeof(struct page_faults)))
+        return -EFAULT;
+
+    return 0; // Éxito
+}
 
 // ----------- SYSCALL: sys_antivirus_stats -----------
 // Simulación: Estadísticas dummy de ejemplo (deberías conectar esto a tus contadores reales)

@@ -1,5 +1,5 @@
 
-para usar el syscall `sys_scan_processes` con num. 550)
+para usar el syscall `sys_scan_processes` con num. 550
 ``` C
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,4 +25,32 @@ int main() {
     return 0;
 }
 
+```
+
+para usar el syscall `sys_get_page_faults` con num. 551
+``` C
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <errno.h>
+#include "syscalls_usac.h" // Asegúrate de que el struct sea el mismo
+
+int main(int argc, char *argv[]) {
+    if(argc != 2) {
+        fprintf(stderr, "Uso: %s <pid>\n", argv[0]);
+        return 1;
+    }
+
+    pid_t pid = (pid_t)atoi(argv[1]);
+    struct page_faults pf;
+
+    long ret = syscall(551, pid, &pf); // 551 = número de syscall que diste
+    if(ret < 0) {
+        perror("sys_get_page_faults");
+        return 1;
+    }
+
+    printf("PID: %d\nMinor Faults: %lu\nMajor Faults: %lu\n", pid, pf.minor_faults, pf.major_faults);
+    return 0;
+}
 ```
