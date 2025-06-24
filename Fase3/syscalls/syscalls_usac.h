@@ -30,7 +30,7 @@ asmlinkage long sys_scan_processes(struct proc __user *user_buf, size_t max_coun
 asmlinkage long sys_get_page_faults(pid_t pid, struct page_faults __user *user_faults);
 #asmlinkage long sys_antivirus_stats(void);
 asmlinkage long sys_get_memory_usage(struct mem_info __user *user_mem);
-#asmlinkage long sys_get_pages(pid_t pid);
+asmlinkage long sys_get_pages(struct memory_pages_info __user *user_pages);
 #asmlinkage long sys_scan_file(const char __user *filepath);
 #asmlinkage long sys_quarantine_file(const char __user *filepath);
 #asmlinkage long sys_get_quarantine_list(void);

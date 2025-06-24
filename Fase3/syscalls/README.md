@@ -79,3 +79,25 @@ int main() {
     return 0;
 }
 ```
+## sys_get_pages
+para usar el syscall `sys_get_pages` con num. 554
+``` C
+#include <stdio.h>
+#include <sys/syscall.h>
+#include <stdlib.h>
+#include "syscalls_usac.h"
+
+int main() {
+    struct memory_pages_info info;
+
+    long ret = syscall(554, &info); // 554 = número de syscall (verifica el tuyo)
+    if (ret < 0) {
+        perror("sys_get_pages");
+        return 1;
+    }
+
+    printf("Páginas activas:   %lu (%lu KB)\n", info.active_pages, info.active_pages_mem);
+    printf("Páginas inactivas: %lu (%lu KB)\n", info.inactive_pages, info.inactive_pages_mem);
+    return 0;
+}
+```

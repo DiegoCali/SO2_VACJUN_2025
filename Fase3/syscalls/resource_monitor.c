@@ -4,6 +4,7 @@
 #include <linux/sysinfo.h>
 #include <linux/uaccess.h>
 #include <linux/rcupdate.h>
+#include <linux/vmstat.h>
 
 // ----------- SYSCALL: sys_scan_processes -----------
 // Devuelve la lista de todos los procesos con: name, pid, mem_percentage
@@ -122,3 +123,23 @@ SYSCALL_DEFINE1(get_memory_usage, struct mem_info __user *, user_mem)
 
 // ----------- SYSCALL: sys_get_pages -----------
 // Devuelve el número de páginas activas e inactivas
+
+SYSCALL_DEFINE1(get_pages, struct memory_pages_info __user *, user_pages)
+{
+    struct memory_pages_info info;
+    unsigned long act = 0, inact = 0;
+
+    // Obtener recuentos de páginas activas/inactivas usando el API del kernel
+    act = global_node_page_state(NR_ACTIVE_FILE) + global_node_page_state(NR_ACTIVE_ANON);
+    inact = global_node_page_state(NR_INACTIVE_FILE) + global_node_page_state(NR_INACTIVE_ANON);
+
+    info.active_pages = act;
+    info.inactive_pages = inact;
+    info.active_pages_mem = act * (PAGE_SIZE / 1024);     // KB
+    info.inactive_pages_mem = inact * (PAGE_SIZE / 1024); // KB
+
+    if (copy_to_user(user_pages, &info, sizeof(struct memory_pages_info)))
+        return -EFAULT;
+
+    return 0;
+}
