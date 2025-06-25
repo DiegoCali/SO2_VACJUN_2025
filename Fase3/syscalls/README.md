@@ -1,3 +1,14 @@
+# Syscalls
+
+## Tabla de Syscalls:
+| Syscall | Número | Descripción |
+|---------|--------|-------------|
+| sys_scan_processes | 550 | Escanea los procesos del sistema y devuelve información sobre ellos. |
+| sys_get_page_faults | 551 | Obtiene información sobre los fallos de página de un proceso específico. |
+| sys_get_memory_usage | 553 | Obtiene información sobre el uso de memoria del sistema. |
+| sys_get_pages | 554 | Obtiene información sobre las páginas de memoria activas e inactivas del sistema. |
+
+
 ## sys_scan_processes
 para usar el syscall `sys_scan_processes` con num. 550
 ``` C
