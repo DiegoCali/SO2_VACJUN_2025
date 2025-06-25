@@ -1,4 +1,4 @@
-#include "syscalls_usac.h"
+#include <linux/syscalls_usac.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
 #include <linux/sysinfo.h>
@@ -11,7 +11,7 @@
 SYSCALL_DEFINE2(scan_processes, struct proc __user *, user_buf, size_t, max_count)
 {
     struct task_struct *task;
-    struct proc *kbuf; #ya tenemos definida la estructura proc en syscalls_usac.h
+    struct proc *kbuf; //ya tenemos definida la estructura proc en syscalls_usac.h
     int proc_count = 0, i = 0;
     struct sysinfo si;
     unsigned long total_mem;
