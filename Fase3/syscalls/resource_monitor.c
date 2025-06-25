@@ -94,11 +94,6 @@ SYSCALL_DEFINE2(get_page_faults, pid_t, pid, struct page_faults __user *, user_f
     return 0; // Éxito
 }
 
-// ----------- SYSCALL: sys_antivirus_stats -----------
-// Simulación: Estadísticas dummy de ejemplo (deberías conectar esto a tus contadores reales)
-
-
-
 // ----------- SYSCALL: sys_get_memory_usage -----------
 // Devuelve info de memoria (total, libre, usada, caché)
 
@@ -113,6 +108,10 @@ SYSCALL_DEFINE1(get_memory_usage, struct mem_info __user *, user_mem)
     info.free_memory  = si.freeram << (PAGE_SHIFT - 10);    // En KB
     info.cached_memory = si.bufferram << (PAGE_SHIFT - 10); // En KB
     info.used_memory  = info.total_memory - info.free_memory; // En KB
+
+    info.total_swap    = si.totalswap << (PAGE_SHIFT - 10);   // Swap total en KB
+    info.free_swap     = si.freeswap << (PAGE_SHIFT - 10);    // Swap libre en KB
+    info.used_swap     = info.total_swap - info.free_swap;     // Swap usada en KB
 
     if (copy_to_user(user_mem, &info, sizeof(struct mem_info)))
         return -EFAULT;

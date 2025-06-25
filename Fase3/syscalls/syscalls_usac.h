@@ -19,6 +19,9 @@ struct mem_info {
     unsigned long free_memory;
     unsigned long used_memory;
     unsigned long cached_memory;
+    unsigned long total_swap;
+    unsigned long free_swap;
+    unsigned long used_swap;
 };
 
 struct memory_pages_info {

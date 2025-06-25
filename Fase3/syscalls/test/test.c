@@ -82,6 +82,11 @@ void test_get_memory_usage() {
     printf("  Total: %lu KB (%.2f GB)\n", info.total_memory, (double)info.total_memory / (1024 * 1024));
     printf("  Usada: %lu KB (%.2f GB)\n", info.used_memory, (double)info.used_memory / (1024 * 1024));
     printf("  Libre: %lu KB (%.2f GB)\n", info.free_memory, (double)info.free_memory / (1024 * 1024));
+    printf("  En caché: %lu KB (%.2f GB)\n", info.cached_memory, (double)info.cached_memory / (1024 * 1024));
+    printf("Swap:\n");
+    printf("  Total: %lu KB (%.2f GB)\n", info.total_swap, (double)info.total_swap / (1024 * 1024));
+    printf("  Usada: %lu KB (%.2f GB)\n", info.used_swap, (double)info.used_swap / (1024 * 1024));
+    printf("  Libre: %lu KB (%.2f GB)\n", info.free_swap, (double)info.free_swap / (1024 * 1024));
     printf("\n");
 }
 
