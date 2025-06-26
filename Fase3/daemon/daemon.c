@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/syscalls.h> // Custom compiled kernel 
+#include <sys/syscall.h> // Custom compiled kernel 
 #include "daemon.h"
 #include "syscalls_usac.h"  // Custom header for syscall numbers
 
@@ -68,7 +68,7 @@ void scan_processes(FILE* proc_file) {
 
     for (int i = 0; i < proc_count; i++) {
         fprintf(proc_file, "%d; %s; %.2f%%\n",
-                proc_buffer[i].pid, proc_buffer[i].name, proc_buffer[i].mem_percent);   
+                proc_buffer[i].pid, proc_buffer[i].name, proc_buffer[i].mem_percentage);   
         fflush(proc_file);
     }
     free(proc_buffer);    

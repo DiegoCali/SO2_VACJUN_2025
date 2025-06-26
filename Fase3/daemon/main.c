@@ -13,6 +13,11 @@
 */
 void handle_sigint(int signum) {
     printf("Received signal %d, stopping daemon and web server...\n", signum);        
+    // Delete the pid file
+    if (remove("antivirus.pid") != 0) {
+        perror("Failed to remove pid file");
+    }
+    // Exit the process
     exit(0);
 }
 
@@ -23,6 +28,15 @@ int main() {
     if (child > 0) {
         exit(0);
     }
+
+    // Write child pid in antivirus.pid file
+    FILE* pid_file = fopen("antivirus.pid", "w");
+    if (pid_file == NULL) {
+        perror("Failed to open pid file");
+        return 1;
+    }
+    fprintf(pid_file, "%d\n", getpid());
+    fclose(pid_file);
 
     pthread_t daemon_thread, web_thread;
 

@@ -6,14 +6,14 @@
 #include <stdlib.h>
 #include <json-c/json.h>
 #include <errno.h>
-#include <sys/syscalls.h> // Custom compiled kernel
+#include <sys/syscall.h> // Custom compiled kernel
 #include "web.h"
 #include "syscalls_usac.h"  // Custom header for syscall numbers
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
 #define MAX_LINE 512
-#define MAXPROC 1024
+#define MAX_PROC 1024
 #define MEM_FILE "mem_info.dat"
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
@@ -22,7 +22,7 @@
 typedef struct {
     int pid;
     char name[256];
-    float mem_percent;
+    float mem_percentage;
 } Process;
 
 /*
@@ -212,19 +212,19 @@ void* start_web_server(void* arg) {
                 }
                 /*
                     * File format:
-                    * pid (lu); name (s); mem_percent (f);\n
+                    * pid (lu); name (s); mem_percentage (f);\n
                 */
                 Process processes[MAX_PROCS];
                 int process_count = 0;
 
                 while (process_count < MAX_PROCS &&
-                    fscanf(file, "%d; %255[^;]; %f\n",
+                    fscanf(proc_file, "%d; %255[^;]; %f\n",
                             &processes[process_count].pid,
                             processes[process_count].name,
-                            &processes[process_count].mem_percent) == 3) {
+                            &processes[process_count].mem_percentage) == 3) {
                     process_count++;
                 }
-                fclose(file);
+                fclose(proc_file);
 
                 // Construct processes array in JSON format
                 json_object *json_array = json_object_new_array();
@@ -232,7 +232,7 @@ void* start_web_server(void* arg) {
                     json_object *json_process = json_object_new_object();
                     json_object_object_add(json_process, "pid", json_object_new_int(processes[i].pid));
                     json_object_object_add(json_process, "name", json_object_new_string(processes[i].name));
-                    json_object_object_add(json_process, "mem_percent", json_object_new_double(processes[i].mem_percent));
+                    json_object_object_add(json_process, "mem_percent", json_object_new_double(processes[i].mem_percentage));
                     json_object_array_add(json_array, json_process);
                 }
 
@@ -272,7 +272,7 @@ void* start_web_server(void* arg) {
                 char line[256];
                 unsigned long active_pages = 0, active_pages_mem = 0, inactive_pages = 0, inactive_pages_mem = 0;
                 if (fgets(line, sizeof(line), page_file)) {
-                    sscanf(line, "%lu; %lu KB; %lu; %lu KB;",
+                    sscanf(line, "%lu; %lu KB; %lu; %lu KB;\n",
                            &active_pages, &active_pages_mem, &inactive_pages, &inactive_pages_mem);
                 }
                 fclose(page_file);
@@ -283,7 +283,8 @@ void* start_web_server(void* arg) {
                 json_object_object_add(page_json, "active_pages_mem", json_object_new_int64(active_pages_mem));
                 json_object_object_add(page_json, "inactive_pages", json_object_new_int64(inactive_pages));
                 json_object_object_add(page_json, "inactive_pages_mem", json_object_new_int64(inactive_pages_mem));
-                http_response(new_socker, response, 200, "application/json", json_response);
+                const char* body = json_object_to_json_string_ext(page_json, JSON_C_TO_STRING_PRETTY);
+                http_response(new_socker, response, 200, "application/json", body);
                 json_object_put(page_json); // Free the JSON object
             } else {
                 handler_not_found(new_socker, response);
