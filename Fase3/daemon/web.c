@@ -23,7 +23,7 @@
 typedef struct {
     int pid;
     char name[256];
-    float mem_percentage;
+    unsigned long mem_percentage;
 } Process;
 
 extern volatile sig_atomic_t running;
@@ -221,7 +221,7 @@ void* start_web_server(void* arg) {
                 int process_count = 0;
                 char line[MAX_LINE];
                 while (fgets(line, sizeof(line), proc_file) && process_count < MAX_PROCS) {
-                    sscanf(line, "%-8d; %-16s; %u%%\n", &processes[process_count].pid, 
+                    sscanf(line, "%8d; %16s; %u%%\n", &processes[process_count].pid, 
                            processes[process_count].name, &processes[process_count].mem_percentage);
                     process_count++;
                 }        
