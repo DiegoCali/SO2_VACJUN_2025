@@ -17,7 +17,7 @@
 #define __NR_sys_get_memory_usage 552
 #define __NR_sys_get_pages 553
 
-void clear_file(File* file) {
+void clear_file(FILE* file) {
     rewind(file); // Move the file pointer to the beginning
     ftruncate(fileno(file), 0); // Clear the file content  
 }

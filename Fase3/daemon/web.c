@@ -13,7 +13,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 4096
 #define MAX_LINE 512
-#define MAX_PROC 1024
+#define MAX_PROCS 1024
 #define MEM_FILE "mem_info.dat"
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
