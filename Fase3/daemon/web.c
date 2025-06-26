@@ -343,6 +343,8 @@ void* start_web_server(void* arg) {
                     continue;
                 }
 
+                quarantined_files++;
+
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure
 
@@ -354,9 +356,7 @@ void* start_web_server(void* arg) {
                 if(!filename) {
                     http_error(new_socker, response, 400, "application/json", "{\"error\": \"Key 'filename' not found in POST data\"}");
                     continue;
-                }
-
-                quarantined_files++;
+                }                
 
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure
