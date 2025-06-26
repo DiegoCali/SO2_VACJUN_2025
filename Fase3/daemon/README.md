@@ -88,9 +88,9 @@ Body:
 Retorna:
 ```
 {
+  "pid": <pid>,
   "minor_faults": <int>,
-  "major_faults": <int>,
-  "pid": <pid>
+  "major_faults": <int>
 }
 ```
 
