@@ -67,7 +67,7 @@ void scan_processes(FILE* proc_file) {
     }
 
     for (int i = 0; i < proc_count; i++) {
-        fprintf(proc_file, "%d; %s; %.2f%%\n",
+        fprintf(proc_file, "%-8d; %-16s; %u%%\n",
                 proc_buffer[i].pid, proc_buffer[i].name, proc_buffer[i].mem_percentage);   
         fflush(proc_file);
     }

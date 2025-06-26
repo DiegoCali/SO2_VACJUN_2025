@@ -121,9 +121,9 @@ void* start_web_server(void* arg) {
     char buffer[BUFFER_SIZE];
     char response[BUFFER_SIZE];
     char json_response[BUFFER_SIZE];    
-    int process_count = 0;
-    int files_scanned = 0;
-    int quarantined_files = 0;
+    // int process_count = 0;
+    // int files_scanned = 0;
+    // int quarantined_files = 0;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -212,18 +212,16 @@ void* start_web_server(void* arg) {
                 }
                 /*
                     * File format:
-                    * pid (lu); name (s); mem_percentage (f);\n
+                    * %-8d; %-16s; %u%%\n
                 */
                 Process processes[MAX_PROCS];
                 int process_count = 0;
-
-                while (process_count < MAX_PROCS &&
-                    fscanf(proc_file, "%d; %255[^;]; %f\n",
-                            &processes[process_count].pid,
-                            processes[process_count].name,
-                            &processes[process_count].mem_percentage) == 3) {
+                char line[MAX_LINE];
+                while (fgets(line, sizeof(line), proc_file) && process_count < MAX_PROCS) {
+                    sscanf(line, "%-8d; %-16s; %u%%\n", &processes[process_count].pid, 
+                           processes[process_count].name, &processes[process_count].mem_percentage);
                     process_count++;
-                }
+                }        
                 fclose(proc_file);
 
                 // Construct processes array in JSON format
