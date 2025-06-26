@@ -302,9 +302,16 @@ void* start_web_server(void* arg) {
                 }      
                 
                 struct page_faults pf;
+                // Cast pid to pid_t
+                pid_t pid_int = (pid_t)atoi(pid);
+                if (pid_int <= 0) {
+                    http_error(new_socker, response, 400, "application/json", "{\"error\": \"Invalid PID\"}");
+                    free((void*)pid); // Free the allocated memory for pid
+                    continue;
+                }
 
-                long result = syscall(__NR_sys_get_page_faults, pid, &pf);
-                if (result < 0) {
+                long result = syscall(__NR_sys_get_page_faults, pid_int, &pf);
+                if (result != 0) {
                     perror("Failed to get page faults");
                     http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
                     free((void*)pid); // Free the allocated memory for pid
