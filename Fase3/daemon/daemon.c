@@ -14,7 +14,6 @@
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
 #define __NR_sys_scan_processes 550
-
 #define __NR_sys_get_memory_usage 552
 #define __NR_sys_get_pages 553
 

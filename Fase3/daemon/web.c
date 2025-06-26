@@ -299,11 +299,26 @@ void* start_web_server(void* arg) {
                     continue;
                 }      
                 
-                // Here you would typically gather page information from the system
+                struct page_faults pf;
+
+                long result = syscall(__NR_sys_get_page_faults, pid, &pf);
+                if (result < 0) {
+                    perror("Failed to get page faults");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    free((void*)pid); // Free the allocated memory for pid
+                    continue;
+                }
                 
-                snprintf(json_response, BUFFER_SIZE, "{\"minor_faults\": 1000, \"major_faults\": 20, \"pid\": %s\n}", pid);
+                // Construct JSON response
+                json_object *json_response = json_object_new_object();
+                json_object_object_add(json_response, "pid", json_object_new_int(atoi(pid)));
+                json_object_object_add(json_response, "minor_faults", json_object_new_int(pf.minor_faults));
+                json_object_object_add(json_response, "major_faults", json_object_new_int(pf.major_faults));
+
+                const char* body = json_object_to_json_string_ext(json_response, JSON_C_TO_STRING_PRETTY);
                 free((void*)pid); // Free the allocated memory for pid
-                http_response(new_socker, response, 200, "application/json", json_response);
+                http_response(new_socker, response, 200, "application/json", body);
+                json_object_put(json_response); // Free the JSON object
             } else if (strcmp(path, "/api/scan_file") == 0) {
                 const char* file_path = extract_body_value(body, "file_path");                
                 if (!file_path){
