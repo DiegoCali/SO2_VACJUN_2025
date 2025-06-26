@@ -56,5 +56,7 @@ int main() {
     // Manage ^C signal to stop the daemon and web server gracefully
     signal(SIGINT, handle_sigint);
     signal(SIGTERM, handle_sigint);
+    signal(SIGKILL, handle_sigint);
+    signal(SIGHUP, handle_sigint);
     return 0;
 }
