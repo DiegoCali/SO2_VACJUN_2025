@@ -5,11 +5,17 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <json-c/json.h>
+#include <errno.h>
+#include <sys/syscalls.h> // Custom compiled kernel
 #include "web.h"
+#include "syscalls_usac.h"  // Custom header for syscall numbers
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
-
+#define MEM_FILE "mem_info.dat"
+#define PROC_FILE "proc_info.dat"
+#define PAGE_FILE "page_info.dat"
+#define __NR_sys_get_page_faults 551 
 /*
     * extract_body - Extracts the body from an HTTP request.
     * @request: Pointer to the HTTP request string.
@@ -106,6 +112,9 @@ void* start_web_server(void* arg) {
     char buffer[BUFFER_SIZE];
     char response[BUFFER_SIZE];
     char json_response[BUFFER_SIZE];
+    int process_count = 0;
+    int files_scanned = 0;
+    int quarantined_files = 0;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -140,10 +149,41 @@ void* start_web_server(void* arg) {
         if (strcmp(method, "GET") == 0) {
             if (strcmp(path, "/api/mem_stats") == 0) {
 
-                // Here you would typically gather memory stats from the system
+                // Open mem_info.dat file to read memory stats
+                FILE* mem_file = fopen(MEM_FILE, "r");
+                if (!mem_file) {
+                    perror("Failed to open memory info file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    continue;
+                }
 
-                const char* body = "{\"total\": 8192, \"used\": 4096, \"free\": 2048, \"cached\": 1024, \"swapped\": 512}";
-                http_response(new_socker, response, 200, "application/json", body);
+                /*
+                    * File format:
+                    * memory; total (lu) KB; used (lu) KB; free (lu) KB; cached (lu) KB;\n
+                    * swap; total (lu) KB; used (lu) KB; free (lu) KB;\n
+                */
+                char line[256];
+                unsigned long total_memory = 0, used_memory = 0, free_memory = 0, cached_memory = 0;
+                unsigned long total_swap = 0, used_swap = 0, free_swap = 0;
+                while (fgets(line, sizeof(line), mem_file)) {
+                    if (strncmp(line, "memory;", 7) == 0) {
+                        sscanf(line, "memory; %lu KB; %lu KB; %lu KB; %lu KB;",
+                               &total_memory, &used_memory, &free_memory, &cached_memory);
+                    } else if (strncmp(line, "swap;", 5) == 0) {
+                        sscanf(line, "swap; %lu KB; %lu KB; %lu KB;",
+                               &total_swap, &used_swap, &free_swap);
+                    }
+                }
+                fclose(mem_file);
+
+                // Construct JSON response
+                snprintf(json_response, BUFFER_SIZE,
+                         "{\"total_memory\": %lu, \"used_memory\": %lu, \"free_memory\": %lu, "
+                         "\"cached_memory\": %lu, \"total_swap\": %lu, \"used_swap\": %lu, "
+                         "\"free_swap\": %lu}",
+                         total_memory, used_memory, free_memory, cached_memory,
+                         total_swap, used_swap, free_swap);                           
+                http_response(new_socker, response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/processes") == 0) {
 
                 // Here you would typically gather process information from the system
@@ -164,10 +204,32 @@ void* start_web_server(void* arg) {
                 http_response(new_socker, response, 200, "application/json", body);
             } else if (strcmp(path, "/api/pages") == 0) {
                 
-                // Here you would typically gather page information from the system
+                // Open page_info.dat file to read page stats
+                FILE* page_file = fopen(PAGE_FILE, "r");
+                if (!page_file) {
+                    perror("Failed to open page info file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    continue;
+                }
 
-                const char* body = "{\"active_pages\": 1000, \"inactive_pages\": 500}";
-                http_response(new_socker, response, 200, "application/json", body);
+                /*
+                    * File format:
+                    * active_pages (lu); active_pages_mem (lu) KB; inactive_pages (lu); inactive_pages_mem (lu) KB;\n
+                */
+                char line[256];
+                unsigned long active_pages = 0, active_pages_mem = 0, inactive_pages = 0, inactive_pages_mem = 0;
+                if (fgets(line, sizeof(line), page_file)) {
+                    sscanf(line, "%lu; %lu KB; %lu; %lu KB;",
+                           &active_pages, &active_pages_mem, &inactive_pages, &inactive_pages_mem);
+                }
+                fclose(page_file);
+                
+                // Construct JSON response
+                snprintf(json_response, BUFFER_SIZE,
+                         "{\"active_pages\": %lu, \"active_pages_mem\": %lu, "
+                         "\"inactive_pages\": %lu, \"inactive_pages_mem\": %lu}",
+                         active_pages, active_pages_mem, inactive_pages, inactive_pages_mem);
+                http_response(new_socker, response, 200, "application/json", json_response);
             } else {
                 handler_not_found(new_socker, response);
                 continue;

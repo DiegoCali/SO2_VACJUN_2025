@@ -1,9 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
 #include "daemon.h"
 #include "web.h"
 #include "test.h"
+
+/*
+    * handle_sigint: Handles the SIGINT signal to stop the daemon and web server gracefully.
+    * @signum: The signal number.
+*/
+void handle_sigint(int signum) {
+    printf("Received signal %d, stopping daemon and web server...\n", signum);        
+    exit(0);
+}
 
 int main() {
     pthread_t daemon_thread, web_thread;
@@ -25,5 +36,8 @@ int main() {
     pthread_join(daemon_thread, NULL);
     pthread_join(web_thread, NULL);
 
+    // Manage ^C signal to stop the daemon and web server gracefully
+    signal(SIGINT, handle_sigint);
+    signal(SIGTERM, handle_sigint);
     return 0;
 }
