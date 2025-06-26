@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/syscall.h> // Custom compiled kernel 
 #include "daemon.h"
 #include "syscalls_usac.h"  // Custom header for syscall numbers
