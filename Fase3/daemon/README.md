@@ -98,7 +98,8 @@ Retorna:
 Body:
 ```
 {
-  "file_path": "<ruta>"
+  "file_path": "<ruta>",
+  "hash": "<hash>"
 }
 ```
 Retorna:
@@ -159,7 +160,8 @@ Retorna:
 Body:
 ```
 {
-  "file_path": "<ruta>"
+  "file_path": "<ruta>",
+  "hash": "<hash>"
 }
 ```
 Retorna:
