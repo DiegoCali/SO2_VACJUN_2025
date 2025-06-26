@@ -337,6 +337,11 @@ void* start_web_server(void* arg) {
 
                 files_scanned++;
 
+                /*
+                    sha256sum file.txt | awk '{print $1}' | grep -Fqf - signatures.db && echo 1 || echo 0
+                    Si es 1 llamar isolate.o, sino continuar
+                */
+
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure, 1 means infected
         
@@ -350,7 +355,7 @@ void* start_web_server(void* arg) {
                     continue;
                 }
 
-                quarantined_files++;
+                quarantined_files++;                
 
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure
@@ -390,6 +395,10 @@ void* start_web_server(void* arg) {
                     http_error(new_socker, response, 400, "application/json", "{\"error\": \"Key 'file_path' not found in POST data\"}");
                     continue;
                 }
+
+                /*
+                    sha256sum file.txt | awk '{print $1}' >> signatures.db
+                */
 
                 // Here you would typically add the file_path to the antivirus database
                 int status = 0; // Assume 0 means success, -1 means failure
