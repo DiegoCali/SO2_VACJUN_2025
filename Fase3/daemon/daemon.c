@@ -17,6 +17,12 @@
 #define __NR_sys_get_memory_usage 552
 #define __NR_sys_get_pages 553
 
+extern volatile sig_atomic_t running;
+
+/*
+    * clear_file: Clears the content of the specified file.
+    * @file: Pointer to the file to be cleared.
+*/
 void clear_file(FILE* file) {
     rewind(file); // Move the file pointer to the beginning
     ftruncate(fileno(file), 0); // Clear the file content  
@@ -151,7 +157,7 @@ void* daemon_loop(void* arg) {
     }
 
     write_log(log_file, "Daemon started");
-    while (1) {        
+    while (running) {        
         write_log(log_file, "Scanning processes...");
         scan_processes(proc_file);
         write_log(log_file, "Scanning memory usage...");

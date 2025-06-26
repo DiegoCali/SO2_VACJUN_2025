@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <json-c/json.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/syscall.h> // Custom compiled kernel
 #include "web.h"
 #include "syscalls_usac.h"  // Custom header for syscall numbers
@@ -24,6 +25,8 @@ typedef struct {
     char name[256];
     float mem_percentage;
 } Process;
+
+extern volatile sig_atomic_t running;
 
 /*
     * extract_body - Extracts the body from an HTTP request.
@@ -136,7 +139,7 @@ void* start_web_server(void* arg) {
 
     printf("Web server started on http://localhost:%d\n", PORT);
 
-    while (1) {
+    while (running) {
         new_socker = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         if (new_socker < 0) {
             perror("Accept failed");
@@ -392,4 +395,6 @@ void* start_web_server(void* arg) {
             continue;
         }
     }
+
+    return NULL;
 }

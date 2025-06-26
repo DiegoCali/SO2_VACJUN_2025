@@ -7,6 +7,8 @@
 #include "daemon.h"
 #include "web.h"
 
+volatile sig_atomic_t running = 0;
+
 /*
     * handle_sigint: Handles the SIGINT signal to stop the daemon and web server gracefully.
     * @signum: The signal number.
@@ -17,6 +19,7 @@ void handle_sigint(int signum) {
     if (remove("antivirus.pid") != 0) {
         perror("Failed to remove pid file");
     }
+    running = 0; // Set running to 0 to stop the threads
     // Exit the process
     exit(0);
 }
@@ -50,13 +53,12 @@ int main() {
         return 1;
     }
 
-    pthread_join(daemon_thread, NULL);
-    pthread_join(web_thread, NULL);
-
-    // Manage ^C signal to stop the daemon and web server gracefully
     signal(SIGINT, handle_sigint);
     signal(SIGTERM, handle_sigint);
     signal(SIGKILL, handle_sigint);
     signal(SIGHUP, handle_sigint);
+
+    pthread_join(daemon_thread, NULL);
+    pthread_join(web_thread, NULL);        
     return 0;
 }
