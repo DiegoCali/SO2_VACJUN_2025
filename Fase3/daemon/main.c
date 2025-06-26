@@ -7,8 +7,6 @@
 #include "daemon.h"
 #include "web.h"
 
-volatile sig_atomic_t running = 0;
-
 /*
     * handle_sigint: Handles the SIGINT signal to stop the daemon and web server gracefully.
     * @signum: The signal number.

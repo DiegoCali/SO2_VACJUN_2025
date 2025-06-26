@@ -18,8 +18,6 @@
 #define __NR_sys_get_memory_usage 552
 #define __NR_sys_get_pages 553
 
-extern volatile sig_atomic_t running;
-
 /*
     * clear_file: Clears the content of the specified file.
     * @file: Pointer to the file to be cleared.

@@ -13,14 +13,12 @@
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
-#define MAX_LINE 512
+#define MAX_LINE 256
 #define MAX_PROCS 20
 #define MEM_FILE "mem_info.dat"
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
 #define __NR_sys_get_page_faults 551 
-
-extern volatile sig_atomic_t running;
 
 /*
     * extract_body - Extracts the body from an HTTP request.
@@ -207,30 +205,34 @@ void* start_web_server(void* arg) {
                     http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
                     continue;
                 }
-                /*
-                    * File format:
-                    * %-8d; %-16s; %u%%\n
-                */
-                proc processes[MAX_PROCS];
-                int process_count = 0;
-                char line[MAX_LINE];
-                while (fgets(line, sizeof(line), proc_file) && process_count < MAX_PROCS) {
-                    sscanf(line, "%d; %s; %u%%\n", &processes[process_count].pid, 
-                           processes[process_count].name, &processes[process_count].mem_percentage);
-                    process_count++;
-                }        
-                fclose(proc_file);
 
                 // Construct processes array in JSON format
                 json_object *json_array = json_object_new_array();
-                for (int i = 0; i < process_count; i++) {
-                    json_object *json_process = json_object_new_object();
-                    json_object_object_add(json_process, "pid", json_object_new_int(processes[i].pid));
-                    json_object_object_add(json_process, "name", json_object_new_string(processes[i].name));
-                    json_object_object_add(json_process, "mem_percent", json_object_new_double(processes[i].mem_percentage));
-                    json_object_array_add(json_array, json_process);
+                
+                // Reinit processes count                
+                process_count = 0;                
+                char line[MAX_LINE];
+                while (fgets(line, sizeof(line), proc_file) && process_count < MAX_PROCS) {
+                    int pid;
+                    char name[128];
+                    int memperc;
+
+                    sscanf(line, " %d ; %127[^;] ; %d%%", &pid, name, &memperc);
+                    size_t len = strlen(name);
+                    while (len > 0 && (name[len - 1] == ' ' || name[len - 1] == '\t')) {
+                        name[--len] = '\0'; // Remove trailing newline or carriage return
+                    }
+
+                    json_object *proc_json = json_object_new_object();
+                    json_object_object_add(proc_json, "pid", json_object_new_int(pid));
+                    json_object_object_add(proc_json, "name", json_object_new_string(name));
+                    json_object_object_add(proc_json, "mem_percentage", json_object_new_int(memperc));
+
+                    json_object_array_add(json_array, proc_json); // Add process JSON object to array
+
                     process_count++;
-                }
+                }        
+                fclose(proc_file);                            
 
                 // Construct JSON response
                 json_object *response_json = json_object_new_object();
