@@ -20,13 +20,17 @@ Luego en la carpeta `/dist` ejecutar el siguiente comando:
 Retorna:
 ```
 {
-  "total_memory": <int>,
-  "used_memory": <int>,
-  "free_memory": <int>,
-  "cached_memory": <int>,
-  "total_swap": <int>,
-  "used_swap": <int>, 
-  "free_swap": <int>
+  "memory": {
+    "total_memory": <int>,
+    "used_memory": <int>,
+    "free_memory": <int>,
+    "cached_memory": <int>
+  }, 
+  "swap": {
+    "total_swap": <int>,
+    "used_swap": <int>,
+    "free_swap": <int>
+  }
 }
 ```
 

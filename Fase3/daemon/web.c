@@ -12,10 +12,19 @@
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
+#define MAX_LINE 512
+#define MAXPROC 1024
 #define MEM_FILE "mem_info.dat"
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
 #define __NR_sys_get_page_faults 551 
+
+typedef struct {
+    int pid;
+    char name[256];
+    float mem_percent;
+} Process;
+
 /*
     * extract_body - Extracts the body from an HTTP request.
     * @request: Pointer to the HTTP request string.
@@ -111,7 +120,7 @@ void* start_web_server(void* arg) {
     int addrlen = sizeof(address);
     char buffer[BUFFER_SIZE];
     char response[BUFFER_SIZE];
-    char json_response[BUFFER_SIZE];
+    char json_response[BUFFER_SIZE];    
     int process_count = 0;
     int files_scanned = 0;
     int quarantined_files = 0;
@@ -177,19 +186,63 @@ void* start_web_server(void* arg) {
                 fclose(mem_file);
 
                 // Construct JSON response
-                snprintf(json_response, BUFFER_SIZE,
-                         "{\"total_memory\": %lu, \"used_memory\": %lu, \"free_memory\": %lu, "
-                         "\"cached_memory\": %lu, \"total_swap\": %lu, \"used_swap\": %lu, "
-                         "\"free_swap\": %lu}",
-                         total_memory, used_memory, free_memory, cached_memory,
-                         total_swap, used_swap, free_swap);                           
-                http_response(new_socker, response, 200, "application/json", json_response);
+                json_object *memory_json = json_object_new_object();
+                json_object_object_add(memory_json, "total_memory", json_object_new_int64(total_memory));
+                json_object_object_add(memory_json, "used_memory", json_object_new_int64(used_memory));
+                json_object_object_add(memory_json, "free_memory", json_object_new_int64(free_memory));
+                json_object_object_add(memory_json, "cached_memory", json_object_new_int64(cached_memory));
+                json_object *swap_json = json_object_new_object();
+                json_object_object_add(swap_json, "total_swap", json_object_new_int64(total_swap));
+                json_object_object_add(swap_json, "used_swap", json_object_new_int64(used_swap));
+                json_object_object_add(swap_json, "free_swap", json_object_new_int64(free_swap));
+                json_object *response_json = json_object_new_object();
+                json_object_object_add(response_json, "memory", memory_json);
+                json_object_object_add(response_json, "swap", swap_json);
+                const char* body = json_object_to_json_string_ext(response_json, JSON_C_TO_STRING_PRETTY);                        
+                http_response(new_socker, response, 200, "application/json", body);
+                json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/processes") == 0) {
 
-                // Here you would typically gather process information from the system
+                // Open proc_info.dat file to read process stats
+                FILE* proc_file = fopen(PROC_FILE, "r");
+                if (!proc_file) {
+                    perror("Failed to open process info file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    continue;
+                }
+                /*
+                    * File format:
+                    * pid (lu); name (s); mem_percent (f);\n
+                */
+                Process processes[MAX_PROCS];
+                int process_count = 0;
 
-                const char* body = "{\"processes\": [{\"pid\": 1, \"name\": \"init\", \"mem_percent\": 0.5}, {\"pid\": 2, \"name\": \"kthreadd\", \"mem_percent\": 0.1}]}";
+                while (process_count < MAX_PROCS &&
+                    fscanf(file, "%d; %255[^;]; %f\n",
+                            &processes[process_count].pid,
+                            processes[process_count].name,
+                            &processes[process_count].mem_percent) == 3) {
+                    process_count++;
+                }
+                fclose(file);
+
+                // Construct processes array in JSON format
+                json_object *json_array = json_object_new_array();
+                for (int i = 0; i < process_count; i++) {
+                    json_object *json_process = json_object_new_object();
+                    json_object_object_add(json_process, "pid", json_object_new_int(processes[i].pid));
+                    json_object_object_add(json_process, "name", json_object_new_string(processes[i].name));
+                    json_object_object_add(json_process, "mem_percent", json_object_new_double(processes[i].mem_percent));
+                    json_object_array_add(json_array, json_process);
+                }
+
+                // Construct JSON response
+                json_object *response_json = json_object_new_object();
+                json_object_object_add(response_json, "processes", json_array);
+
+                const char* body = json_object_to_json_string_ext(response_json, JSON_C_TO_STRING_PRETTY);                
                 http_response(new_socker, response, 200, "application/json", body);
+                json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/antivirus_stats") == 0) {
                 
                 // Here you would typically gather antivirus stats from the system
@@ -225,11 +278,13 @@ void* start_web_server(void* arg) {
                 fclose(page_file);
                 
                 // Construct JSON response
-                snprintf(json_response, BUFFER_SIZE,
-                         "{\"active_pages\": %lu, \"active_pages_mem\": %lu, "
-                         "\"inactive_pages\": %lu, \"inactive_pages_mem\": %lu}",
-                         active_pages, active_pages_mem, inactive_pages, inactive_pages_mem);
+                json_object *page_json = json_object_new_object();
+                json_object_object_add(page_json, "active_pages", json_object_new_int64(active_pages));
+                json_object_object_add(page_json, "active_pages_mem", json_object_new_int64(active_pages_mem));
+                json_object_object_add(page_json, "inactive_pages", json_object_new_int64(inactive_pages));
+                json_object_object_add(page_json, "inactive_pages_mem", json_object_new_int64(inactive_pages_mem));
                 http_response(new_socker, response, 200, "application/json", json_response);
+                json_object_put(page_json); // Free the JSON object
             } else {
                 handler_not_found(new_socker, response);
                 continue;
