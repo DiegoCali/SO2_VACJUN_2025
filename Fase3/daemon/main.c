@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -5,7 +6,6 @@
 #include <signal.h>
 #include "daemon.h"
 #include "web.h"
-#include "test.h"
 
 /*
     * handle_sigint: Handles the SIGINT signal to stop the daemon and web server gracefully.
@@ -17,11 +17,14 @@ void handle_sigint(int signum) {
 }
 
 int main() {
-    pthread_t daemon_thread, web_thread;
+    // Create a child process to run the daemon and web server
+    pid_t child = fork();
+    assert(child != -1);
+    if (child > 0) {
+        exit(0);
+    }
 
-    struct MemStats memory_stats = get_memory_stats();
-    printf("Memory Stats: Total: %lu MB, Used: %lu MB, Free: %lu MB, Cached: %lu MB, Swapped: %lu MB\n",
-           memory_stats.total, memory_stats.used, memory_stats.free, memory_stats.cached, memory_stats.swapped);
+    pthread_t daemon_thread, web_thread;
 
     if (pthread_create(&daemon_thread, NULL, daemon_loop, NULL) != 0) {
         perror("Failed to create daemon thread");
