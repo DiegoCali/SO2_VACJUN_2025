@@ -74,7 +74,7 @@ void scan_processes(FILE* proc_file) {
     }
 
     for (int i = 0; i < proc_count; i++) {
-        fprintf(proc_file, "%-8d; %-16s; %u%%\n",
+        fprintf(proc_file, "%d; %16s; %u%%\n",
                 proc_buffer[i].pid, proc_buffer[i].name, proc_buffer[i].mem_percentage);   
         fflush(proc_file);
     }
@@ -158,7 +158,7 @@ void* daemon_loop(void* arg) {
     }
 
     write_log(log_file, "Daemon started");
-    while (running) {        
+    while (1) {        
         write_log(log_file, "Scanning processes...");
         scan_processes(proc_file);
         write_log(log_file, "Scanning memory usage...");

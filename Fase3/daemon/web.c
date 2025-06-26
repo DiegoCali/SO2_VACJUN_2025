@@ -14,17 +14,11 @@
 #define PORT 8080
 #define BUFFER_SIZE 4096
 #define MAX_LINE 512
-#define MAX_PROCS 1024
+#define MAX_PROCS 20
 #define MEM_FILE "mem_info.dat"
 #define PROC_FILE "proc_info.dat"
 #define PAGE_FILE "page_info.dat"
 #define __NR_sys_get_page_faults 551 
-
-typedef struct {
-    int pid;
-    char name[256];
-    unsigned long mem_percentage;
-} Process;
 
 extern volatile sig_atomic_t running;
 
@@ -139,7 +133,7 @@ void* start_web_server(void* arg) {
 
     printf("Web server started on http://localhost:%d\n", PORT);
 
-    while (running) {
+    while (1) {
         new_socker = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         if (new_socker < 0) {
             perror("Accept failed");
@@ -217,11 +211,11 @@ void* start_web_server(void* arg) {
                     * File format:
                     * %-8d; %-16s; %u%%\n
                 */
-                Process processes[MAX_PROCS];
+                proc processes[MAX_PROCS];
                 int process_count = 0;
                 char line[MAX_LINE];
                 while (fgets(line, sizeof(line), proc_file) && process_count < MAX_PROCS) {
-                    sscanf(line, "%8d; %16s; %u%%\n", &processes[process_count].pid, 
+                    sscanf(line, "%d; %16s; %u%%\n", &processes[process_count].pid, 
                            processes[process_count].name, &processes[process_count].mem_percentage);
                     process_count++;
                 }        
