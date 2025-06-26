@@ -20,11 +20,13 @@ Luego en la carpeta `/dist` ejecutar el siguiente comando:
 Retorna:
 ```
 {
-  "total": <int>,
-  "used": <int>,
-  "free": <int>,
-  "cached": <int>,
-  "swapped": <int>
+  "total_memory": <int>,
+  "used_memory": <int>,
+  "free_memory": <int>,
+  "cached_memory": <int>,
+  "total_swap": <int>,
+  "used_swap": <int>, 
+  "free_swap": <int>
 }
 ```
 
@@ -65,7 +67,9 @@ Retorna:
 ```
 {
   "active_pages": <int>,
-  "inactive_pages": <int>
+  "active_pages_mem": <int>,
+  "inactive_pages": <int>,
+  "inactive_pages_mem": <int>,
 }
 ```
 
