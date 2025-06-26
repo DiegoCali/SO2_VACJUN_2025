@@ -118,9 +118,9 @@ void* start_web_server(void* arg) {
     char buffer[BUFFER_SIZE];
     char response[BUFFER_SIZE];
     char json_response[BUFFER_SIZE];    
-    // int process_count = 0;
-    // int files_scanned = 0;
-    // int quarantined_files = 0;
+    int process_count = 0;
+    int files_scanned = 0;
+    int quarantined_files = 0;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -229,6 +229,7 @@ void* start_web_server(void* arg) {
                     json_object_object_add(json_process, "name", json_object_new_string(processes[i].name));
                     json_object_object_add(json_process, "mem_percent", json_object_new_double(processes[i].mem_percentage));
                     json_object_array_add(json_array, json_process);
+                    process_count++;
                 }
 
                 // Construct JSON response
@@ -240,10 +241,13 @@ void* start_web_server(void* arg) {
                 json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/antivirus_stats") == 0) {
                 
-                // Here you would typically gather antivirus stats from the system
-
-                const char* body = "{\"processes_monitored\": 100, \"files_scanned\": 5, \"quarantined_files\": 2}";
+                json_object *response_json = json_object_new_object();
+                json_object_object_add(response_json, "processes_monitored", json_object_new_int(process_count));
+                json_object_object_add(response_json, "files_scanned", json_object_new_int(files_scanned));
+                json_object_object_add(response_json, "quarantined_files", json_object_new_int(quarantined_files)); 
+                const char* body = json_object_to_json_string_ext(response_json, JSON_C_TO_STRING_PRETTY);                
                 http_response(new_socker, response, 200, "application/json", body);
+                json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/quarantine_files") == 0) {
                 
                 // Here you would typically gather quarantine files from the system
@@ -322,6 +326,8 @@ void* start_web_server(void* arg) {
                     continue;
                 }   
 
+                files_scanned++;
+
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure, 1 means infected
         
@@ -347,6 +353,8 @@ void* start_web_server(void* arg) {
                     http_error(new_socker, response, 400, "application/json", "{\"error\": \"Key 'filename' not found in POST data\"}");
                     continue;
                 }
+
+                quarantined_files++;
 
                 // Here you would typically gather page information from the system
                 int status = 0; // Assume 0 means success, -1 means failure
