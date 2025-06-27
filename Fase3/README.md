@@ -204,3 +204,31 @@ Retorna:
 ![files2](./imgs/files2.png)
 > Aquí se muestran los archivos en cuarentena y se pueden restaurar o eliminar.
 
+## Errores Obtenidos:
+
+### Error de parseo de JSON:
+![error (1)](./imgs/error%20(1).png)
+> Este error ocurre cuando el JSON enviado no es válido o no se puede parsear correctamente.
+
+### Cors y endpoint incorrecto:
+![error (2)](./imgs/error%20(2).png)
+> Este error ocurre cuando hay un problema de CORS o cuando se accede a un endpoint que no existe.
+
+
+### Cors y options no configurados en metodos POST:
+![error (3)](./imgs/error%20(3).png)
+> Este error ocurre cuando se intenta hacer una petición POST sin que el servidor esté configurado para manejar CORS o cuando el método OPTIONS no está configurado correctamente.
+
+### Error de json en el body:
+![error (8)](./imgs/error%20(8).png)
+> Este error ocurre cuando el JSON enviado en el body de la petición no es válido o no se puede parsear correctamente.
+
+
+### Error por respuesta incorrecta del servidor:
+![error_01](./imgs/error_01.png)
+> Este error ocurre cuando el servidor no responde con el formato esperado o cuando hay un error en el servidor.
+
+
+### Error en la petición de datos:
+![error_02](./imgs/error_02.png)
+> Este error ocurre cuando hay un problema al hacer la petición de datos al servidor, ya que no se pidieron los datos correctamente o el servidor no está respondiendo.
