@@ -1,0 +1,355 @@
+{
+	"info": {
+		"_postman_id": "071068ff-0bd7-4d79-9ad0-cd3665a8c4f1",
+		"name": "sopes2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30513299"
+	},
+	"item": [
+		{
+			"name": "mem_stats",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Federer\",\n  \"nationality\": \"Switzerland\",\n  \"birthDate\": \"22-11-1984\",\n  \"titles\": 151\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/mem_stats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"mem_stats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "processes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Federer\",\n  \"nationality\": \"Switzerland\",\n  \"birthDate\": \"22-11-1984\",\n  \"titles\": 151\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/processes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"processes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "antivirus_stats",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Federer\",\n  \"nationality\": \"Switzerland\",\n  \"birthDate\": \"22-11-1984\",\n  \"titles\": 151\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/antivirus_stats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"antivirus_stats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "quarantaine_files",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Federer\",\n  \"nationality\": \"Switzerland\",\n  \"birthDate\": \"22-11-1984\",\n  \"titles\": 151\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/quarantine_files",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"quarantine_files"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pages",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Federer\",\n  \"nationality\": \"Switzerland\",\n  \"birthDate\": \"22-11-1984\",\n  \"titles\": 151\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/pages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"pages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "page_faults",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"pid\": 1234\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/page_faults",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"page_faults"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "scan_file",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"file_path\": \"/home/diego/music/song.mp3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/scan_file",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"scan_file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "quarantine_file",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"file_path\": \"/home/diego/music/song.mp3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/quarantine_file",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"quarantine_file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "restore_file",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"filename\": \"song.mp3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/restore_file",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"restore_file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete_file",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"filename\": \"song.mp3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/delete_file",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"delete_file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add_signature",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"file_path\": \"/home/diego/music/song.mp3\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/add_signature",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"add_signature"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
