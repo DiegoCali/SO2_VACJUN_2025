@@ -9,13 +9,14 @@ ejecutar el siguiente comando en la terminal:
 ```bash
 make
 ```
-Luego en la carpeta `/dist` ejecutar el siguiente comando:
+Luego en la carpeta actual `daemon`  ejecutar el siguiente comando:
 ```bash
-./main
+sudo su #necesario para poder ejecutar el daemon
+./dist/main
 ```
+para que todo funcione a corde debe de ejecutar minimo una vez el archivo de aislar.c o puede hacerlo por medio de la api.
 
 ## API:
-
 ### `GET /api/mem_stats`
 Retorna:
 ```
@@ -106,7 +107,7 @@ Retorna:
 ```
 {
   "status": <int>,
-  "hash": "<hash>",
+  "message": "<message>",
   "file_path": "<ruta>"
 }
 ```
@@ -152,6 +153,7 @@ Retorna:
 ```
 {
   "status": <int>,
+  "message": "<message>",
   "filename": "<name>"
 }
 ```
@@ -168,6 +170,7 @@ Retorna:
 ```
 {
   "status": <int>,
+  "message": "<message>",
   "file_path": "<ruta>"
 }
 ```

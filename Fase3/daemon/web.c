@@ -302,8 +302,8 @@ void* start_web_server(void* arg) {
                 }      
                 
                 struct page_faults pf;
-                // Cast pid to pid_t
                 pid_t pid_int = (pid_t)atoi(pid);
+
                 if (pid_int <= 0) {
                     http_error(new_socker, response, 400, "application/json", "{\"error\": \"Invalid PID\"}");
                     free((void*)pid); // Free the allocated memory for pid
@@ -317,7 +317,7 @@ void* start_web_server(void* arg) {
                     free((void*)pid); // Free the allocated memory for pid
                     continue;
                 }
-                
+
                 // Construct JSON response
                 json_object *json_response = json_object_new_object();
                 json_object_object_add(json_response, "pid", json_object_new_int(atoi(pid)));
@@ -329,23 +329,46 @@ void* start_web_server(void* arg) {
                 http_response(new_socker, response, 200, "application/json", body);
                 json_object_put(json_response); // Free the JSON object
             } else if (strcmp(path, "/api/scan_file") == 0) {
-                const char* file_path = extract_body_value(body, "file_path");                
+                const char* file_path = extract_body_value(body, "file_path");
                 if (!file_path){
+                    perror("Key 'file_path' not found in POST data");
                     http_error(new_socker, response, 400, "application/json", "{\"error\": \"Key 'file_path' not found in POST data\"}");
+                    free((void*)file_path); // Free the allocated memory for file_path
                     continue;
                 }   
 
+                int status = 0; // de inicio asumimos que el archivo esta limpio
+                char message[100]= "File is clean";
+
+                //la ruta maxima que acepta linux es de 4096, pero para evitar problemas de buffer overflow, usamos un tamaño menor
+                char cmd[1024], buf[8] = {0};
+                snprintf(cmd, sizeof(cmd),
+                        "sudo sha256sum \"%s\" | awk '{print $1}' | grep -Fqf - signatures.db && echo 1 || echo 0", 
+                        file_path);
+
+                int result = -1;
+                FILE *fp = popen(cmd, "r");
+                if (fp) {
+                    if (fgets(buf, sizeof buf, fp))
+                        result = (buf[0] == '1') ? 1 : 0;
+                    pclose(fp);
+                }
+                
+                if (result == 1) {
+                    // File is infected
+                    snprintf(cmd, sizeof(cmd),"sudo ./quarantine_functions/aislar \"%s\"",file_path);
+                    if (system(cmd) != 0) { //0 es success
+                        http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                        free((void*)file_path); // Free the allocated memory for file_path
+                        continue;
+                    }
+                    // File quarantined successfully
+                    status = 1; // Assume 1 means infected
+                    strcpy(message, "File is infected and has been quarantined");
+                }
                 files_scanned++;
 
-                /*
-                    sha256sum file.txt | awk '{print $1}' | grep -Fqf - signatures.db && echo 1 || echo 0
-                    Si es 1 llamar isolate.o, sino continuar
-                */
-
-                // Here you would typically gather page information from the system
-                int status = 0; // Assume 0 means success, -1 means failure, 1 means infected
-        
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"hash\": J8JLK8P86, \"file_path\": \"%s\"\n}", status, file_path);                
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": %s, \"file_path\": \"%s\"\n}", status,message, file_path);                
                 free((void*)file_path); // Free the allocated memory for pid
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/quarantine_file") == 0) {
@@ -355,10 +378,19 @@ void* start_web_server(void* arg) {
                     continue;
                 }
 
-                quarantined_files++;                
+                quarantined_files++;
 
-                // Here you would typically gather page information from the system
-                int status = 0; // Assume 0 means success, -1 means failure
+                char cmd[1024];
+                snprintf(cmd, sizeof(cmd),"sudo ./quarantine_functions/aislar \"%s\"",file_path);
+                int status = system(cmd); // Ejecutamos el comando para aislar el archivo
+
+                //lo vamos a poner en cuarentena
+                if (status != 0) { //0 es success
+                    perror("Failed to quarantine file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    free((void*)file_path); // Free the allocated memory for file_path
+                    continue;
+                }
 
                 snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"file_path\": \"%s\"\n}", status, file_path);
                 free((void*)file_path); // Free the allocated memory for pid
@@ -370,8 +402,17 @@ void* start_web_server(void* arg) {
                     continue;
                 }                
 
-                // Here you would typically gather page information from the system
-                int status = 0; // Assume 0 means success, -1 means failure
+                char cmd[1024];
+                snprintf(cmd, sizeof(cmd),"sudo ./quarantine_functions/restaurar \"%s\"",filename);
+                int status = system(cmd); // Ejecutamos el comando para aislar el archivo
+
+                //lo vamos a poner en cuarentena
+                if (status != 0) { //0 es success
+                    perror("Failed to quarantine file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    free((void*)filename); // Free the allocated memory for file_path
+                    continue;
+                }
 
                 snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"filename\": \"%s\"\n}", status, filename);
                 free((void*)filename); // Free the allocated memory for filename
@@ -383,10 +424,21 @@ void* start_web_server(void* arg) {
                     continue;
                 }
 
-                // Here you would typically gather page information from the system
-                int status = 0; // Assume 0 means success, -1 means failure
+                char cmd[1024];
+                snprintf(cmd, sizeof(cmd),"sudo ./quarantine_functions/eliminar \"%s\"",filename);
+                int status = system(cmd); // Ejecutamos el comando para aislar el archivo
 
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"filename\": \"%s\"\n}", status, filename);
+                //lo vamos a poner en cuarentena
+                if (status != 0) { //0 es success
+                    perror("Failed to quarantine file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    free((void*)filename); // Free the allocated memory for file_path
+                    continue;
+                }
+
+                char *message = "File deleted successfully";
+
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d,\"message\":%s, \"filename\": \"%s\"\n}", status,message, filename);
                 free((void*)filename); // Free the allocated memory for filename
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/add_signature") == 0) {
@@ -396,14 +448,12 @@ void* start_web_server(void* arg) {
                     continue;
                 }
 
-                /*
-                    sha256sum file.txt | awk '{print $1}' >> signatures.db
-                */
-
-                // Here you would typically add the file_path to the antivirus database
-                int status = 0; // Assume 0 means success, -1 means failure
-
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"file_path\": \"%s\"\n}", status, file_path);
+                char cmd[1024];
+                snprintf(cmd, sizeof(cmd),"sudo sha256sum \"%s\">> signatures.db",file_path);
+                int status = system(cmd);
+                char *message= "Signature added successfully";
+                
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": %s, \"file_path\": \"%s\"\n}", status,message,file_path);
                 free((void*)file_path); // Free the allocated memory for file_path
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else {

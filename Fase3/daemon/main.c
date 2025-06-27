@@ -17,7 +17,6 @@ void handle_sigint(int signum) {
     if (remove("antivirus.pid") != 0) {
         perror("Failed to remove pid file");
     }
-    running = 0; // Set running to 0 to stop the threads
     // Exit the process
     exit(0);
 }

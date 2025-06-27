@@ -6,7 +6,7 @@
 struct proc {
     char name[16];                // Process name
     pid_t pid;                    // Process ID
-    unsigned long mem_percentage; // Memory usage percentage
+    unsigned int mem_percentage; // Memory usage percentage
 };
 
 struct page_faults {
