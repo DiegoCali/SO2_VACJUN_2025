@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { post } from '../services/api';
 
 export const FileUploadView: React.FC = () => {
@@ -7,7 +9,7 @@ export const FileUploadView: React.FC = () => {
 
     const handleSubmit = async (type: 'scan' | 'signature') => {
         if (!filePath.trim()) {
-            setFeedback('Por favor, ingresa una ruta de archivo válida.');
+            toast.error(`Ingrese un archivo o ruta valida`);
             return;
         }
 
@@ -20,13 +22,14 @@ export const FileUploadView: React.FC = () => {
                 hash: '',
             });
 
-            setFeedback(
-                `${type === 'scan' ? 'Escaneo' : 'Firma'} completado para ${res.file_path}`
-            );
+            if (res.status === 0 ) {
+                toast.success(`${type === 'scan' ? 'El archivo no tiene virus' : 'Se ha marcado como viruzzz'} ${res.file_path}`);
+            } else {
+                toast.error(`${type === 'scan' ? 'El archivo no tiene virus' : 'No se ha podido marcar el archivo'} ${res.file_path}`);
+            } 
+            
         } catch (err) {
-            setFeedback(
-                `Error al ${type === 'scan' ? 'escanear' : 'firmar'} el archivo.`
-            );
+            toast.error(`Error al ${type === 'scan' ? 'escanear' : 'Marcado'} el archivo.`);
             console.error(err);
         }
     };
@@ -58,11 +61,11 @@ export const FileUploadView: React.FC = () => {
                     disabled={!filePath.trim()}
                     className={`px-6 py-2 rounded font-semibold text-white ${
                         filePath.trim()
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-green-300 cursor-not-allowed'
+                            ? 'bg-red-600 hover:bg-green-700'
+                            : 'bg-red-300 cursor-not-allowed'
                     }`}
                 >
-                    Agregar Firma
+                    Marcar como Viruzzz
                 </button>
 
                 <button
@@ -83,6 +86,11 @@ export const FileUploadView: React.FC = () => {
                     {feedback}
                 </p>
             )}
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                theme="dark"
+            />
         </div>
     );
 };

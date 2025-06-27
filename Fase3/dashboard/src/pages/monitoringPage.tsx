@@ -68,7 +68,7 @@ const MonitoringPage: React.FC = () => {
         { key: 'pid' as keyof Process, label: 'PID' },
         { key: 'name' as keyof Process, label: 'Nombre' },
         {
-            key: 'mem_percent' as keyof Process,
+            key: 'mem_percentage' as keyof Process,
             label: 'Memoria (%)',
             render: (value: string | number, _row: Process) =>
                 typeof value === 'number' ? value.toFixed(2) + ' %' : value,
