@@ -32,7 +32,7 @@ export const QuarantineFilesView: React.FC = () => {
     const handleRestore = async (filename: string) => {
         try {
             const res = await post('/restore_file', { filename });
-            if (res.status === 200) {
+            if (res.status === 0) {
                 toast.success(`Archivo restaurado: ${res.filename}`);
                 fetchFiles();
             } else {
@@ -47,7 +47,7 @@ export const QuarantineFilesView: React.FC = () => {
     const handleDelete = async (filename: string) => {
         try {
             const res = await post('/delete_file', { filename });
-            if (res.status === 200) {
+            if (res.status === 0) {
                 toast.success(`Archivo eliminado: ${res.filename}`);
                 fetchFiles();
             } else {

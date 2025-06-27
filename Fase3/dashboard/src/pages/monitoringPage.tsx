@@ -34,7 +34,7 @@ const MonitoringPage: React.FC = () => {
         setError(null);
         try {
             const [processData, pagesData] = await Promise.all([
-                get('/processes?pid=0'), // Consulta a pid=0 al cargar
+                get('/processes'),
                 get('/pages'),
             ]);
 
@@ -154,7 +154,7 @@ const MonitoringPage: React.FC = () => {
                 {/* Formulario + gráfica de page faults */}
                 <div className="flex-shrink-0 w-[800px] min-w-[560px] h-[375px]">
                     <ValueInputBarChart
-                        apiUrl="/page-faults"
+                        apiUrl="/page_faults"
                         inputName="pid"
                         inputLabel="Consultar Page Faults"
                         title="Page Faults por PID"

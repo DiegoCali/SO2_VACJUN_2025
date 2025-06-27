@@ -21,12 +21,20 @@ void listar_archivos_en_cuarentena() {
 
     printf("Archivos en cuarentena:\n");
 
+    FILE *file = fopen("archivo.txt", "w");
+    if (file == NULL) {
+        perror("No se pudo abrir el archivo para escribir");
+        closedir(dir);
+        exit(EXIT_FAILURE);
+    }
+
     while ((entry = readdir(dir)) != NULL) {
         // Saltar los directorios "." y ".."
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
-
-        printf("- %s\n", entry->d_name);
+        if (strcmp(entry->d_name, ".info") == 0)
+            continue; // Saltar el archivo .info
+        fprintf(file,"%s\n", entry->d_name);
     }
 
     closedir(dir);

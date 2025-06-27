@@ -68,6 +68,9 @@ void http_response(int sock, char* response, int status_code, const char* conten
              "HTTP/1.1 %d OK\r\n"
              "Content-Type: %s\r\n"
              "Content-Length: %zu\r\n"
+             "Access-Control-Allow-Origin: *\r\n"
+             "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+             "Access-Control-Allow-Headers: Content-Type\r\n"
              "Connection: close\r\n"
              "\r\n"
              "%s",
@@ -85,11 +88,14 @@ void http_response(int sock, char* response, int status_code, const char* conten
 */
 void http_error(int sock, char* response, int status_code, const char* content_type, const char* error_message) {
     snprintf(response, BUFFER_SIZE,
-             "HTTP/1.1 %d %s\r\n"
-             "Content-Type: %s\r\n"
-             "Content-Length: %zu\r\n"
-             "Connection: close\r\n"
-             "\r\n"
+            "HTTP/1.1 %d %s\r\n"
+            "Content-Type: %s\r\n"
+            "Content-Length: %zu\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+            "Access-Control-Allow-Headers: Content-Type\r\n"
+            "Connection: close\r\n"
+            "\r\n"
              "%s",
              status_code, error_message, content_type, strlen(error_message), error_message);
     write(sock, response, strlen(response));
@@ -252,10 +258,46 @@ void* start_web_server(void* arg) {
                 json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/quarantine_files") == 0) {
                 
-                // Here you would typically gather quarantine files from the system
+                char cmd[1024];
+                snprintf(cmd, sizeof(cmd),"sudo ./quarantine_functions/list ");
+                int status = system(cmd); // Ejecutamos el comando para aislar el archivo
 
-                const char* body = "{\"files\": [{\"name\": \"malware.exe\"}, {\"name\": \"virus.txt\"}]}";
+                //lo vamos a poner en cuarentena
+                if (status != 0) { //0 es success
+                    perror("Failed to quarantine file");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    continue;
+                }
+
+                json_object *json_array = json_object_new_array();
+                FILE *file = fopen("archivo.txt", "r");
+
+                if (!file) {
+                    perror("Failed to open quarantine file list");
+                    http_error(new_socker, response, 500, "application/json", "{\"error\": \"Internal Server Error\"}");
+                    continue;
+                }
+
+                char filename[256];
+
+                while (fgets(filename, sizeof(filename), file)) {
+                    size_t len = strlen(filename);
+                    if (len > 0 && filename[len - 1] == '\n') {
+                        filename[len - 1] = '\0'; // Remove trailing newline
+                    }
+                    json_object *file_json = json_object_new_object();
+                    json_object_object_add(file_json, "name", json_object_new_string(filename));
+                    json_object_array_add(json_array, file_json); // Add file JSON object to array
+                }
+                fclose(file);
+
+                // Construct JSON response
+                json_object *response_json = json_object_new_object();
+                json_object_object_add(response_json, "files", json_array);
+
+                const char* body = json_object_to_json_string_ext(response_json, JSON_C_TO_STRING_PRETTY);
                 http_response(new_socker, response, 200, "application/json", body);
+                json_object_put(response_json); // Free the JSON object
             } else if (strcmp(path, "/api/pages") == 0) {
                 
                 // Open page_info.dat file to read page stats
@@ -368,7 +410,7 @@ void* start_web_server(void* arg) {
                 }
                 files_scanned++;
 
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": %s, \"file_path\": \"%s\"\n}", status,message, file_path);                
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": \"%s\", \"file_path\": \"%s\"\n}", status,message, file_path);                
                 free((void*)file_path); // Free the allocated memory for pid
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/quarantine_file") == 0) {
@@ -438,7 +480,7 @@ void* start_web_server(void* arg) {
 
                 char *message = "File deleted successfully";
 
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d,\"message\":%s, \"filename\": \"%s\"\n}", status,message, filename);
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d,\"message\":\"%s\", \"filename\": \"%s\"\n}", status,message, filename);
                 free((void*)filename); // Free the allocated memory for filename
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else if (strcmp(path, "/api/add_signature") == 0) {
@@ -453,13 +495,16 @@ void* start_web_server(void* arg) {
                 int status = system(cmd);
                 char *message= "Signature added successfully";
                 
-                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": %s, \"file_path\": \"%s\"\n}", status,message,file_path);
+                snprintf(json_response, BUFFER_SIZE, "{\"status\": %d, \"message\": \"%s\", \"file_path\": \"%s\"\n}", status,message,file_path);
                 free((void*)file_path); // Free the allocated memory for file_path
                 http_response(new_socker, response, 200, "application/json", json_response);
             } else {
                 handler_not_found(new_socker, response);
                 continue;
             }
+        } else if (strcmp(method, "OPTIONS") == 0) {
+            http_response(new_socker, response, 204, "text/plain", "");
+            continue;
         } else {
             http_response(new_socker, response, 405, "application/json", "{\"error\": \"Method Not Allowed\"}");
             continue;
