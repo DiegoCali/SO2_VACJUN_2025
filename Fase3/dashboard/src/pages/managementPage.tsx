@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FileUploadView } from '../components/FileUploadView';
+import { QuarantineFilesView } from '../components/quarantineFilesView';
 
 const Management: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'upload' | 'log'>('upload');
@@ -34,11 +35,9 @@ const Management: React.FC = () => {
             {activeTab === 'upload' && (
                 <div>
                     <h2 className="text-xl font-semibold mb-4">
-                        Vista para subir archivos
+                        Subir archivos
                     </h2>
                     <FileUploadView />
-                    
-                    <p>Aquí implementaremos la subida de archivos.</p>
                 </div>
             )}
 
@@ -47,11 +46,7 @@ const Management: React.FC = () => {
                     <h2 className="text-xl font-semibold mb-4">
                         Registro de datos de cuarentena
                     </h2>
-                    {/* Aquí iría el componente o contenido para registro */}
-                    <p>
-                        Aquí implementaremos el registro de datos permitidos y
-                        no permitidos.
-                    </p>
+                    <QuarantineFilesView />
                 </div>
             )}
         </div>
